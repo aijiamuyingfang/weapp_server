@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '25'))
+        disableConcurrentBuilds()
+        timestamps()
+        skipDefaultCheckout()
+    }
+
+    stages {
+        
+        stage('get code') {
+            steps {
+                git 'https://github.com/fuyoushengwu/weapp_server.git'
+            }
+        }
+
+        stage('package') {
+            steps {
+                dir("sources") {
+                    sh 'mvn clean package -Dmaven.test.skip=true'
+                }
+            }
+        }
+
+        stage('deploy') {
+            steps {
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: '172.16.0.4-SSH', 
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'sources/distribute/weapp.tar.gz',
+                                    removePrefix: 'sources/distribute/', 
+                                    execCommand: 'tar -zxvf weapp.tar.gz'
+                                )
+                            ], 
+                            verbose: true
+                        ), 
+                        sshPublisherDesc(
+                            configName: '172.16.0.8-SSH', 
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'sources/distribute/weapp.tar.gz',
+                                    removePrefix: 'sources/distribute/', 
+                                    execCommand: 'tar -zxvf weapp.tar.gz'
+                                )
+                            ], 
+                            verbose: true
+                        )
+                    ]
+                )
+
+            }
+        }
+
+
+    }
+
+}

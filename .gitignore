@@ -1,3 +1,10 @@
 .settings
 target
 .project
+/sources/distribute
+logs
+.classpath
+*.jar
+.factorypath
+
+/sources/cn.aijiamuyingfang.server.distribute/services
