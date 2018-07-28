@@ -1,7 +1,7 @@
 package cn.aijiamuyingfang.server.rest.auth.filter;
 
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.rest.auth.service.JwtTokenService;
 import java.io.IOException;
 import javax.servlet.FilterChain;

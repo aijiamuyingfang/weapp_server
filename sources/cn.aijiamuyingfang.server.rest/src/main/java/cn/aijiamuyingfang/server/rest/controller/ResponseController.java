@@ -1,7 +1,7 @@
 package cn.aijiamuyingfang.server.rest.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseBean;
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
+import cn.aijiamuyingfang.commons.domain.response.ResponseBean;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
 import java.util.Map;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;

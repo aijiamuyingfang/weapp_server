@@ -1,15 +1,14 @@
 package cn.aijiamuyingfang.server.user.controller;
 
-import cn.aijiamuyingfang.server.client.api.impl.WXSessionControllerClient;
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.WXSession;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.WXServiceException;
-import cn.aijiamuyingfang.server.domain.user.TokenResponse;
-import cn.aijiamuyingfang.server.domain.user.User;
-import cn.aijiamuyingfang.server.domain.user.UserRequest;
+import cn.aijiamuyingfang.client.rest.api.impl.WXSessionControllerClient;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.WXServiceException;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.response.TokenResponse;
+import cn.aijiamuyingfang.commons.domain.wxservice.WXSession;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.user.service.AuthService;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
@@ -77,12 +76,12 @@ public class AuthController {
   /**
    * 注册用户
    * 
-   * @param request
+   * @param user
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping("/user/register")
-  public User registerUser(@RequestBody UserRequest request) {
-    return authService.registerUser(request);
+  public User registerUser(@RequestBody User user) {
+    return authService.registerUser(user);
   }
 
   /**

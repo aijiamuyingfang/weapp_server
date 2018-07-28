@@ -1,11 +1,10 @@
 package cn.aijiamuyingfang.server.goods.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.Classify;
-import cn.aijiamuyingfang.server.domain.goods.ClassifyRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Classify;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetTopClassifyListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.goods.service.ClassifyService;
 import cn.aijiamuyingfang.server.goods.service.ImageService;
 import cn.aijiamuyingfang.server.goods.service.StoreClassifyService;
@@ -46,9 +45,6 @@ public class ClassifyController {
   @Autowired
   private ImageService imageService;
 
-  @Autowired
-  private ConverterService converterService;
-
   /**
    * 获取门店下所有的顶层条目
    * 
@@ -59,6 +55,20 @@ public class ClassifyController {
   @GetMapping(value = "/store/{storeid}/classify")
   public List<Classify> getStoreTopClassifyList(@PathVariable(value = "storeid") String storeid) {
     return storeclassifyService.getStoreClassifyList(storeid);
+  }
+
+  /**
+   * 分页获取所有顶层条目
+   * 
+   * @param currentpage
+   * @param pagesize
+   * @return
+   */
+  @PreAuthorize(value = "isAuthenticated()")
+  @GetMapping(value = "/classify")
+  public GetTopClassifyListResponse getTopClassifyList(@RequestParam("currentpage") int currentpage,
+      @RequestParam("pagesize") int pagesize) {
+    return classifyService.getTopClassifyList(currentpage, pagesize);
   }
 
   /**
@@ -97,14 +107,14 @@ public class ClassifyController {
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/classify")
-  public Classify createTopClassify(@RequestBody ClassifyRequest request) {
+  public Classify createTopClassify(@RequestBody Classify request) {
     if (null == request) {
       throw new GoodsException("400", "classify request body is null");
     }
     if (StringUtils.isEmpty(request.getName())) {
       throw new GoodsException("400", "classify name is empty");
     }
-    return classifyService.createTopClassify(converterService.from(request));
+    return classifyService.createTopClassify(request);
   }
 
   /**
@@ -130,7 +140,7 @@ public class ClassifyController {
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/classify/{classifyid}/subclassify")
   public Classify createSubClassify(@PathVariable(value = "classifyid") String classifyid,
-      @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, ClassifyRequest classifyRequest,
+      @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Classify classifyRequest,
       HttpServletRequest request) {
     if (null == classifyRequest) {
       throw new GoodsException("400", "classify request is null");
@@ -138,7 +148,7 @@ public class ClassifyController {
     if (StringUtils.isEmpty(classifyRequest.getName())) {
       throw new GoodsException("400", "classify name is empty");
     }
-    Classify subClassify = classifyService.createSubClassify(classifyid, converterService.from(classifyRequest));
+    Classify subClassify = classifyService.createSubClassify(classifyid, classifyRequest);
 
     String coverImgUrl = imageService.saveClassifyLogo(subClassify.getId(), coverImage);
     if (StringUtils.hasContent(coverImgUrl)) {

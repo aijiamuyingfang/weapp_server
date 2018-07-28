@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.wxservice.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.WXSession;
+import cn.aijiamuyingfang.commons.domain.wxservice.WXSession;
 import cn.aijiamuyingfang.server.wxservice.service.WXSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

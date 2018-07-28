@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.rest.auth.filter;
 
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;

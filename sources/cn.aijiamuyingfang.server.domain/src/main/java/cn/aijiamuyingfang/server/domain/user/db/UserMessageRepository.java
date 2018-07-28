@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.user.db;
 
-import cn.aijiamuyingfang.server.domain.user.UserMessage;
+import cn.aijiamuyingfang.commons.domain.user.UserMessage;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.domain.Page;

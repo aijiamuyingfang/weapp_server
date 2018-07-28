@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.wxservice.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.TemplateMsg;
+import cn.aijiamuyingfang.commons.domain.wxservice.TemplateMsg;
 import cn.aijiamuyingfang.server.wxservice.service.TemplateMsgService;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import org.springframework.beans.factory.annotation.Autowired;

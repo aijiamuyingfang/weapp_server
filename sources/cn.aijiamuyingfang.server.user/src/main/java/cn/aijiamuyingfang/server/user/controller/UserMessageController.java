@@ -1,12 +1,10 @@
 package cn.aijiamuyingfang.server.user.controller;
 
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.UserException;
-import cn.aijiamuyingfang.server.domain.user.GetMessagesListResponse;
-import cn.aijiamuyingfang.server.domain.user.UserMessage;
-import cn.aijiamuyingfang.server.domain.user.UserMessageRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.UserException;
+import cn.aijiamuyingfang.commons.domain.user.UserMessage;
+import cn.aijiamuyingfang.commons.domain.user.response.GetMessagesListResponse;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.user.service.UserMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,9 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserMessageController {
   @Autowired
   private UserMessageService usermessageService;
-
-  @Autowired
-  private ConverterService converterService;
 
   /**
    * 获得用户未读消息数量
@@ -80,26 +75,26 @@ public class UserMessageController {
    * 
    * @param headerUserId
    * @param userid
-   * @param request
+   * @param usermessage
    * @return
    */
   @PreAuthorize(value = "isAuthenticated()")
   @PostMapping(value = "/user/{userid}/message")
   public UserMessage createMessage(@RequestHeader("userid") String headerUserId, @PathVariable("userid") String userid,
-      @RequestBody UserMessageRequest request) {
+      @RequestBody UserMessage usermessage) {
     if (!userid.equals(headerUserId)) {
       throw new AuthException("403", "no permission");
     }
-    if (null == request) {
+    if (null == usermessage) {
       throw new UserException("400", "usermessage request body is null");
     }
-    if (StringUtils.isEmpty(request.getTitle())) {
+    if (StringUtils.isEmpty(usermessage.getTitle())) {
       throw new UserException("400", "usermessage title is empty");
     }
-    if (null == request.getType()) {
+    if (null == usermessage.getType()) {
       throw new UserException("400", "usermessage type is null");
     }
-    return usermessageService.createMessage(userid, converterService.from(request));
+    return usermessageService.createMessage(userid, usermessage);
   }
 
   /**

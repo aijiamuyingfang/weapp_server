@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.user.db;
 
-import cn.aijiamuyingfang.server.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.goods.db;
 
-import cn.aijiamuyingfang.server.domain.goods.GoodDetail;
+import cn.aijiamuyingfang.commons.domain.goods.GoodDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

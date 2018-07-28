@@ -1,11 +1,13 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.domain.address.StoreAddress;
+import cn.aijiamuyingfang.commons.domain.address.City;
+import cn.aijiamuyingfang.commons.domain.address.StoreAddress;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetInUseStoreListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.address.db.StoreAddressRepository;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.GetInUseStoreListResponse;
-import cn.aijiamuyingfang.server.domain.goods.Store;
 import cn.aijiamuyingfang.server.domain.goods.db.StoreRepository;
 import java.util.HashSet;
 import java.util.List;
@@ -38,9 +40,9 @@ public class StoreService {
    * 分页获取在使用中的Store
    * 
    * @param currentpage
-   *          当前页 (currentpage必须>=1,否则重置为1)
+   *          当前页 (currentpage必须&ge;1,否则重置为1)
    * @param pagesize
-   *          每页大小 (pagesize必须>0,否则重置为1)
+   *          每页大小 (pagesize必须&gt;0,否则重置为1)
    * @return
    */
   public GetInUseStoreListResponse getInUseStoreList(int currentpage, int pagesize) {
@@ -90,7 +92,7 @@ public class StoreService {
    * 更新门店信息
    * 
    * @param storeid
-   * @param store
+   * @param updateStore
    */
   public Store updateStore(String storeid, Store updateStore) {
     Store store = storeRepository.findOne(storeid);
@@ -135,7 +137,14 @@ public class StoreService {
     List<Store> stores = storeRepository.findInUseStores();
     Set<String> storeCity = new HashSet<>();
     for (Store store : stores) {
-      storeCity.add(store.getStoreAddress().getCity().getName());
+      StoreAddress storeaddress = store.getStoreAddress();
+      if (null == storeaddress) {
+        continue;
+      }
+      City city = storeaddress.getCity();
+      if (city != null && StringUtils.hasContent(city.getName())) {
+        storeCity.add(city.getName());
+      }
     }
     return storeCity;
   }

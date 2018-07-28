@@ -15,8 +15,26 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>cn.aijiamuyingfang.server.commons</artifactId>
+			<artifactId>cn.aijiamuyingfang.commons</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>cn.aijiamuyingfang.commons.domain</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>cn.aijiamuyingfang.commons.domain.adapter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>1.2</version>
 		</dependency>
 
 		<dependency>

@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.rest.auth.service;
 
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.user.User;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

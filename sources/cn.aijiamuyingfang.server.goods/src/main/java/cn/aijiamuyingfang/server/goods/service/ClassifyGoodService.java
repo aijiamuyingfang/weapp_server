@@ -1,11 +1,12 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.Classify;
-import cn.aijiamuyingfang.server.domain.goods.GetClassifyGoodListResponse;
-import cn.aijiamuyingfang.server.domain.goods.Good;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Classify;
+import cn.aijiamuyingfang.commons.domain.goods.Good;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetClassifyGoodListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.goods.db.ClassifyRepository;
 import cn.aijiamuyingfang.server.domain.goods.db.GoodRepository;
 import java.util.List;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * [描述]:

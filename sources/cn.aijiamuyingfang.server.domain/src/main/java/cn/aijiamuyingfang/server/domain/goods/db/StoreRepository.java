@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.goods.db;
 
-import cn.aijiamuyingfang.server.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.domain.Page;

@@ -39,7 +39,7 @@
 			additivity="false">
 			<appender-ref ref="ShopOrder" />
 		</logger>
-		<logger name="cn.aijiamuyingfang.server" level="ERROR"
+		<logger name="cn.aijiamuyingfang" level="ERROR"
 			additivity="false">
 			<appender-ref ref="Server" />
 		</logger>

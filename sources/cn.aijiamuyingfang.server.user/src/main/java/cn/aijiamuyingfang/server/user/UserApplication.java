@@ -16,9 +16,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @email shiweideyouxiang@sina.cn
  * @date 2018-06-25 21:27:08
  */
-@SpringBootApplication(scanBasePackages = { "cn.aijiamuyingfang.server" })
-@EnableJpaRepositories(basePackages = { "cn.aijiamuyingfang.server" })
-@EntityScan(basePackages = { "cn.aijiamuyingfang.server" })
+@SpringBootApplication(scanBasePackages = { "cn.aijiamuyingfang.client", "cn.aijiamuyingfang.server" })
+@EnableJpaRepositories(basePackages = { "cn.aijiamuyingfang.server.domain" })
+@EntityScan(basePackages = { "cn.aijiamuyingfang.commons", "cn.aijiamuyingfang.server" })
 public class UserApplication {
   public static void main(String[] args) {
     SpringApplication.run(UserApplication.class, args);

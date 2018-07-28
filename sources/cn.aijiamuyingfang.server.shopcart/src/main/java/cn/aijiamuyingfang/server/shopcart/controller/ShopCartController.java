@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.shopcart.controller;
 
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.shopcart.AddShopCartItemRequest;
-import cn.aijiamuyingfang.server.domain.shopcart.GetShopCartItemListResponse;
-import cn.aijiamuyingfang.server.domain.shopcart.ShopCartItem;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.shopcart.AddShopCartItemRequest;
+import cn.aijiamuyingfang.commons.domain.shopcart.ShopCartItem;
+import cn.aijiamuyingfang.commons.domain.shopcart.response.GetShopCartItemListResponse;
 import cn.aijiamuyingfang.server.shopcart.service.ShopCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

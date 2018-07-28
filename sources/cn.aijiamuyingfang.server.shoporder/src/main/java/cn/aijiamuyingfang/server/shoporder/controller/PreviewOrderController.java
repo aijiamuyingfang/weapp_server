@@ -1,11 +1,9 @@
 package cn.aijiamuyingfang.server.shoporder.controller;
 
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.ShopOrderException;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrder;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrderItem;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrderItemRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopOrderException;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrderItem;
 import cn.aijiamuyingfang.server.shoporder.service.PreviewOrderService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +33,6 @@ public class PreviewOrderController {
   @Autowired
   private PreviewOrderService previeworderService;
 
-  @Autowired
-  private ConverterService converterService;
-
   /**
    * 更新预览的商品项
    * 
@@ -51,14 +46,14 @@ public class PreviewOrderController {
   @PutMapping(value = "/user/{userid}/previeworder/item/{itemid}")
   public PreviewOrderItem updatePreviewOrderItem(@RequestHeader("userid") String headerUserId,
       @PathVariable("userid") String userid, @PathVariable("itemid") String itemid,
-      @RequestBody PreviewOrderItemRequest request) {
+      @RequestBody PreviewOrderItem request) {
     if (!userid.equals(headerUserId)) {
       throw new AuthException("403", "no permission update other user's preview item");
     }
     if (null == request) {
       throw new ShopOrderException("400", "update previeworderitem request is null");
     }
-    return previeworderService.updatePreviewOrderItem(userid, itemid, converterService.from(request));
+    return previeworderService.updatePreviewOrderItem(userid, itemid, request);
   }
 
   /**

@@ -1,13 +1,10 @@
 package cn.aijiamuyingfang.server.user.controller;
 
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.address.RecieveAddress;
-import cn.aijiamuyingfang.server.domain.address.RecieveAddressRequest;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.UserException;
-import cn.aijiamuyingfang.server.domain.user.User;
-import cn.aijiamuyingfang.server.domain.user.UserRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.UserException;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.user.service.UserService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +35,6 @@ public class UserController {
   @Autowired
   private UserService userService;
 
-  @Autowired
-  private ConverterService converterService;
-
   /**
    * 获取用户
    * 
@@ -62,20 +56,20 @@ public class UserController {
    * 
    * @param headerUserId
    * @param userid
-   * @param request
+   * @param user
    * @return
    */
   @PreAuthorize(value = "isAuthenticated()")
   @PutMapping(value = "/user/{userid}")
   public User updateUser(@RequestHeader("userid") String headerUserId, @PathVariable("userid") String userid,
-      @RequestBody UserRequest request) {
+      @RequestBody User user) {
     if (!userid.equals(headerUserId)) {
       throw new AuthException("403", "no permission change other user's info");
     }
-    if (null == request) {
+    if (null == user) {
       throw new UserException("400", "update user request body is null");
     }
-    return userService.updateUser(userid, converterService.from(request));
+    return userService.updateUser(userid, user);
   }
 
   /**
@@ -106,7 +100,7 @@ public class UserController {
   @PreAuthorize(value = "isAuthenticated()")
   @PostMapping(value = "/user/{userid}/recieveaddress")
   public RecieveAddress addUserRecieveAddress(@RequestHeader("userid") String headerUserId,
-      @PathVariable("userid") String userid, @RequestBody RecieveAddressRequest request) {
+      @PathVariable("userid") String userid, @RequestBody RecieveAddress request) {
     if (!userid.equals(headerUserId)) {
       throw new AuthException("403", "no permission add recieve address to other user");
     }
@@ -116,7 +110,7 @@ public class UserController {
     if (StringUtils.isEmpty(request.getPhone())) {
       throw new UserException("400", "recieveaddress phone is empty");
     }
-    return userService.addUserRecieveAddress(userid, converterService.from(request));
+    return userService.addUserRecieveAddress(userid, request);
   }
 
   /**
@@ -150,14 +144,14 @@ public class UserController {
   @PutMapping(value = "/user/{userid}/recieveaddress/{addressid}")
   public RecieveAddress updateRecieveAddress(@RequestHeader("userid") String headerUserId,
       @PathVariable("userid") String userid, @PathVariable("addressid") String addressid,
-      @RequestBody RecieveAddressRequest request) {
+      @RequestBody RecieveAddress request) {
     if (!userid.equals(headerUserId)) {
       throw new AuthException("403", "no permission change other user's recieve address");
     }
     if (null == request) {
       throw new UserException("400", "update recieveaddress request body is null");
     }
-    return userService.updateRecieveAddress(userid, addressid, converterService.from(request));
+    return userService.updateRecieveAddress(userid, addressid, request);
   }
 
   /**

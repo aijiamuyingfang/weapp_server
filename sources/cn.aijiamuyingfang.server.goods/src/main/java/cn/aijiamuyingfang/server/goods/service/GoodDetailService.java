@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.server.domain.goods.GoodDetail;
+import cn.aijiamuyingfang.commons.domain.goods.GoodDetail;
 import cn.aijiamuyingfang.server.domain.goods.db.GoodDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,14 +1,14 @@
 package cn.aijiamuyingfang.server.shoporder.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopOrderException;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.domain.shopcart.ShopCartItem;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrderItem;
 import cn.aijiamuyingfang.server.domain.address.db.RecieveAddressRepository;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.ShopOrderException;
-import cn.aijiamuyingfang.server.domain.shopcart.ShopCartItem;
 import cn.aijiamuyingfang.server.domain.shopcart.db.ShopCartItemRepository;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrder;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrderItem;
 import cn.aijiamuyingfang.server.domain.shoporder.db.PreviewOrderItemRepository;
 import cn.aijiamuyingfang.server.domain.shoporder.db.PreviewOrderRepository;
 import java.util.List;

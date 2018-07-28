@@ -1,7 +1,7 @@
 package cn.aijiamuyingfang.server.wxservice.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.TemplateMsg;
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.TemplateMsgKeyValue;
+import cn.aijiamuyingfang.commons.domain.wxservice.TemplateMsg;
+import cn.aijiamuyingfang.commons.domain.wxservice.TemplateMsgKeyValue;
 import cn.binarywang.wx.miniapp.api.WxMaMsgService;
 import cn.binarywang.wx.miniapp.bean.WxMaTemplateMessage;
 import cn.binarywang.wx.miniapp.bean.WxMaTemplateMessage.Data;

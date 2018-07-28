@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.domain.goods.db;
 
-import cn.aijiamuyingfang.server.commons.annotation.TestDescription;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.goods.Classify;
-import cn.aijiamuyingfang.server.domain.goods.Store;
+import cn.aijiamuyingfang.commons.annotation.TestDescription;
+import cn.aijiamuyingfang.commons.domain.goods.Classify;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Assert;

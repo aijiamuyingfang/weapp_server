@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.Classify;
-import cn.aijiamuyingfang.server.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Classify;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
 import cn.aijiamuyingfang.server.domain.goods.db.ClassifyRepository;
 import cn.aijiamuyingfang.server.domain.goods.db.StoreRepository;
 import java.util.List;
@@ -43,16 +43,17 @@ public class StoreClassifyService {
     return store.getClassifyList();
   }
 
+
   /**
    * 门店下添加顶层条目
    * 
    * @param storeid
    * @param classifyid
    */
-  public void addClassify(String storeid, String classifyId) {
-    Classify classify = classifyRepository.findOne(classifyId);
+  public void addClassify(String storeid, String classifyid) {
+    Classify classify = classifyRepository.findOne(classifyid);
     if (null == classify) {
-      throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, classifyId);
+      throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, classifyid);
     }
     Store store = storeRepository.findOne(storeid);
     if (null == store) {

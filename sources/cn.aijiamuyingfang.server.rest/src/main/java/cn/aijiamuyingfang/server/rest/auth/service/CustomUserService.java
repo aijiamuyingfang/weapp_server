@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.rest.auth.service;
 
-import cn.aijiamuyingfang.server.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.User;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,17 +1,17 @@
 package cn.aijiamuyingfang.server.coupon.service;
 
-import cn.aijiamuyingfang.server.domain.coupon.GetGoodVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetShopOrderVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetUserVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetVoucherItemListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GoodVoucher;
-import cn.aijiamuyingfang.server.domain.coupon.UserVoucher;
-import cn.aijiamuyingfang.server.domain.coupon.VoucherItem;
+import cn.aijiamuyingfang.commons.domain.coupon.GoodVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.UserVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.VoucherItem;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetGoodVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetShopOrderVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetUserVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetVoucherItemListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderVoucher;
 import cn.aijiamuyingfang.server.domain.coupon.db.GoodVoucherRepository;
 import cn.aijiamuyingfang.server.domain.coupon.db.UserVoucherRepository;
 import cn.aijiamuyingfang.server.domain.coupon.db.VoucherItemRepository;
 import cn.aijiamuyingfang.server.domain.goods.db.GoodRepository;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrderVoucher;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -110,6 +110,10 @@ public class CouponService {
     return response;
   }
 
+  public GoodVoucher getGoodVoucher(String voucherid) {
+    return goodvoucherRepository.findOne(voucherid);
+  }
+
   /**
    * 创建商品兑换券
    * 
@@ -127,7 +131,6 @@ public class CouponService {
    * 废弃商品兑换券
    * 
    * @param voucherid
-   * @return
    */
   public void deprecateGoodVoucher(String voucherid) {
     // 废弃GoodVoucher
@@ -167,6 +170,16 @@ public class CouponService {
     response.setDataList(voucheritemPage.getContent());
     response.setTotalpage(voucheritemPage.getTotalPages());
     return response;
+  }
+
+  /**
+   * 获取兑换方式
+   * 
+   * @param itemid
+   * @return
+   */
+  public VoucherItem getVoucherItem(String itemid) {
+    return voucheritemRepository.findOne(itemid);
   }
 
   /**

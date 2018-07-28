@@ -1,8 +1,8 @@
 package cn.aijiamuyingfang.server.domain.shoporder.db;
 
-import cn.aijiamuyingfang.server.commons.domain.SendType;
-import cn.aijiamuyingfang.server.commons.domain.ShopOrderStatus;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.SendType;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderStatus;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

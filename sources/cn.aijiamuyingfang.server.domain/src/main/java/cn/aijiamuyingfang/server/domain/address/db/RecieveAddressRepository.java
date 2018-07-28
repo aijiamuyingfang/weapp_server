@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.address.db;
 
-import cn.aijiamuyingfang.server.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

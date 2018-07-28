@@ -39,7 +39,7 @@
 			additivity="false">
 			<appender-ref ref="coupon" />
 		</logger>
-		<logger name="cn.aijiamuyingfang.server" level="DEBUG"
+		<logger name="cn.aijiamuyingfang" level="DEBUG"
 			additivity="false">
 			<appender-ref ref="Server" />
 		</logger>

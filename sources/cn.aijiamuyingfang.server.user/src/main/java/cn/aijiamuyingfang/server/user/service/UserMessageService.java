@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.user.service;
 
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.user.GetMessagesListResponse;
-import cn.aijiamuyingfang.server.domain.user.User;
-import cn.aijiamuyingfang.server.domain.user.UserMessage;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.UserMessage;
+import cn.aijiamuyingfang.commons.domain.user.response.GetMessagesListResponse;
 import cn.aijiamuyingfang.server.domain.user.db.UserMessageRepository;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
 import java.util.ArrayList;

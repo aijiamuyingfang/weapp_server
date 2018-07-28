@@ -1,20 +1,19 @@
 package cn.aijiamuyingfang.server.shoporder.controller;
 
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.domain.SendType;
-import cn.aijiamuyingfang.server.commons.domain.ShopOrderStatus;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.ShopOrderException;
-import cn.aijiamuyingfang.server.domain.goods.GoodRequest;
-import cn.aijiamuyingfang.server.domain.shoporder.ConfirmUserShopOrderFinishedResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.CreateUserShoprderRequest;
-import cn.aijiamuyingfang.server.domain.shoporder.GetFinishedPreOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetPreOrderGoodListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetShopOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetUserShopOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrder;
-import cn.aijiamuyingfang.server.domain.shoporder.UpdateShopOrderStatusRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopOrderException;
+import cn.aijiamuyingfang.commons.domain.goods.Good;
+import cn.aijiamuyingfang.commons.domain.shoporder.SendType;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderStatus;
+import cn.aijiamuyingfang.commons.domain.shoporder.request.CreateUserShoprderRequest;
+import cn.aijiamuyingfang.commons.domain.shoporder.request.UpdateShopOrderStatusRequest;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.ConfirmUserShopOrderFinishedResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetFinishedPreOrderListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetPreOrderGoodListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetShopOrderListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetUserShopOrderListResponse;
 import cn.aijiamuyingfang.server.shoporder.service.ShopOrderService;
 import java.io.IOException;
 import java.util.List;
@@ -46,9 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShopOrderController {
   @Autowired
   private ShopOrderService shoporderSerivce;
-
-  @Autowired
-  private ConverterService converterService;
 
   /**
    * 分页获取用户的订单信息
@@ -248,17 +244,18 @@ public class ShopOrderController {
    * 预定的商品到货,更新预约单
    * 
    * @param token
-   * @param request
+   * @param good
    * @throws IOException
    */
   @PreAuthorize(value = "hasAuthority('admin')")
-  @PutMapping(value = "/shoporder/preorder")
-  public void updatePreOrder(@RequestHeader(AuthConstants.HEADER_STRING) String token, @RequestBody GoodRequest request)
-      throws IOException {
-    if (null == request) {
+  @PutMapping(value = "/shoporder/preorder/good/{goodid}")
+  public void updatePreOrder(@RequestHeader(AuthConstants.HEADER_STRING) String token,
+      @PathVariable("goodid") String goodid, @RequestBody Good good) throws IOException {
+    if (null == good) {
       throw new ShopOrderException("400", "update preorder request body is null");
     }
-    shoporderSerivce.updatePreOrders(token, converterService.from(request));
+    good.setId(goodid);
+    shoporderSerivce.updatePreOrders(token, good);
   }
 
 }

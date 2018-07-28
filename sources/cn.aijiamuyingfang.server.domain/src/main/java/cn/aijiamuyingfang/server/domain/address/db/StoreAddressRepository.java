@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.address.db;
 
-import cn.aijiamuyingfang.server.domain.address.StoreAddress;
+import cn.aijiamuyingfang.commons.domain.address.StoreAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

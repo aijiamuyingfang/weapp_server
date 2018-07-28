@@ -1,12 +1,11 @@
 package cn.aijiamuyingfang.server.user.service;
 
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.user.TokenResponse;
-import cn.aijiamuyingfang.server.domain.user.User;
-import cn.aijiamuyingfang.server.domain.user.UserAuthority;
-import cn.aijiamuyingfang.server.domain.user.UserRequest;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.UserAuthority;
+import cn.aijiamuyingfang.commons.domain.user.response.TokenResponse;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
 import cn.aijiamuyingfang.server.rest.auth.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +97,7 @@ public class AuthService {
     UserDetails userDetails = userDetailService.loadUserByUsername(user.getId());
     String token = tokenService.generateToken(userDetails);
     TokenResponse tokenResponse = new TokenResponse();
+    tokenResponse.setUserid(user.getId());
     tokenResponse.setToken(token);
     return tokenResponse;
   }
@@ -107,7 +107,7 @@ public class AuthService {
    * 
    * @param request
    */
-  public User registerUser(UserRequest request) {
+  public User registerUser(User request) {
     if (StringUtils.isEmpty(request.getJscode())) {
       throw new AuthException("400", "register failed,because not provide jscode as openid");
     }
@@ -144,6 +144,7 @@ public class AuthService {
     if (tokenService.canTokenBeRefreshed(token)) {
       TokenResponse tokenResponse = new TokenResponse();
       tokenResponse.setToken(tokenService.refreshToken(token));
+      tokenResponse.setUserid(((User) userDetails).getId());
       return tokenResponse;
     }
     throw new AuthException("400", "oldtoken is invalid,you need relogin");

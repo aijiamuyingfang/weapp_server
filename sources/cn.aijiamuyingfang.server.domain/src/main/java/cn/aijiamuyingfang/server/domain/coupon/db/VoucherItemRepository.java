@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.coupon.db;
 
-import cn.aijiamuyingfang.server.domain.coupon.VoucherItem;
+import cn.aijiamuyingfang.commons.domain.coupon.VoucherItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,22 +1,19 @@
 package cn.aijiamuyingfang.server.coupon.controller;
 
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
+import cn.aijiamuyingfang.commons.domain.coupon.GoodVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.VoucherItem;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetGoodVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetShopOrderVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetUserVoucherListResponse;
+import cn.aijiamuyingfang.commons.domain.coupon.response.GetVoucherItemListResponse;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.CouponException;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.coupon.service.CouponService;
-import cn.aijiamuyingfang.server.domain.coupon.GetGoodVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetShopOrderVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetUserVoucherListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GetVoucherItemListResponse;
-import cn.aijiamuyingfang.server.domain.coupon.GoodVoucher;
-import cn.aijiamuyingfang.server.domain.coupon.GoodVoucherRequest;
-import cn.aijiamuyingfang.server.domain.coupon.VoucherItem;
-import cn.aijiamuyingfang.server.domain.coupon.VoucherItemRequest;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.CouponException;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,9 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CouponController {
   @Autowired
   private CouponService couponService;
-
-  @Autowired
-  private ConverterService converterService;
 
   /**
    * 分页获取用户兑换券
@@ -98,6 +92,18 @@ public class CouponController {
   }
 
   /**
+   * 获取商品兑换项
+   * 
+   * @param voucherid
+   * @return
+   */
+  @PreAuthorize(value = "isAuthenticated()")
+  @GetMapping(value = "/coupon/goodvoucher/{voucherid}")
+  public GoodVoucher getGoodVoucher(@PathVariable("voucherid") String voucherid) {
+    return couponService.getGoodVoucher(voucherid);
+  }
+
+  /**
    * 创建商品兑换券
    * 
    * @param request
@@ -105,7 +111,7 @@ public class CouponController {
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/coupon/goodvoucher")
-  public GoodVoucher createGoodVoucher(@RequestBody GoodVoucherRequest request) {
+  public GoodVoucher createGoodVoucher(@RequestBody GoodVoucher request) {
     if (null == request) {
       throw new CouponException("400", "goodvoucher request  body is null");
     }
@@ -118,7 +124,7 @@ public class CouponController {
     if (CollectionUtils.isEmpty(request.getVoucheritemIdList())) {
       throw new CouponException("400", "good voucher items is empyt");
     }
-    return couponService.createGoodVoucher(converterService.from(request));
+    return couponService.createGoodVoucher(request);
   }
 
   /**
@@ -147,6 +153,18 @@ public class CouponController {
   }
 
   /**
+   * 获取兑换方式
+   * 
+   * @param itemid
+   * @return
+   */
+  @PreAuthorize(value = "isAuthenticated()")
+  @GetMapping(value = "/coupon/voucheritem/{itemid}")
+  public VoucherItem getVoucherItem(@PathVariable("itemid") String itemid) {
+    return couponService.getVoucherItem(itemid);
+  }
+
+  /**
    * 创建兑换选择项
    * 
    * @param request
@@ -154,7 +172,7 @@ public class CouponController {
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/coupon/voucheritem")
-  public VoucherItem createVoucherItem(@RequestBody VoucherItemRequest request) {
+  public VoucherItem createVoucherItem(@RequestBody VoucherItem request) {
     if (null == request) {
       throw new CouponException("400", "voucheritem request body is null");
     }
@@ -168,7 +186,7 @@ public class CouponController {
       throw new CouponException("400", "voucher item score is 0");
     }
 
-    return couponService.createVoucherItem(converterService.from(request));
+    return couponService.createVoucherItem(request);
   }
 
   /**

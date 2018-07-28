@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.coupon.db;
 
-import cn.aijiamuyingfang.server.domain.coupon.UserVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.UserVoucher;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +27,7 @@ public interface UserVoucherRepository extends JpaRepository<UserVoucher, String
    * 分页查询用户的兑换券
    * 
    * @param userid
-   * @param pagable
+   * @param pageable
    * @return
    */
   @Query(value = "select * from user_voucher where userid=:userid and deprecated=false order by ?#{#pageable}",

@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.shoporder.db;
 
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrderItem;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

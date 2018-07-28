@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.server.commons.utils.FileUtils;
+import cn.aijiamuyingfang.commons.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;

@@ -1,16 +1,15 @@
 package cn.aijiamuyingfang.server.goods.controller;
 
-import cn.aijiamuyingfang.server.client.api.impl.ShopCartControllerClient;
-import cn.aijiamuyingfang.server.client.api.impl.ShopOrderControllerClient;
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.GetClassifyGoodListResponse;
-import cn.aijiamuyingfang.server.domain.goods.Good;
-import cn.aijiamuyingfang.server.domain.goods.GoodDetail;
-import cn.aijiamuyingfang.server.domain.goods.GoodRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.client.rest.api.impl.ShopCartControllerClient;
+import cn.aijiamuyingfang.client.rest.api.impl.ShopOrderControllerClient;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Good;
+import cn.aijiamuyingfang.commons.domain.goods.GoodDetail;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetClassifyGoodListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.goods.service.ClassifyGoodService;
 import cn.aijiamuyingfang.server.goods.service.GoodDetailService;
 import cn.aijiamuyingfang.server.goods.service.GoodService;
@@ -21,7 +20,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,9 +63,6 @@ public class GoodController {
   @Autowired
   private ShopOrderControllerClient shoporderControllerClient;
 
-  @Autowired
-  private ConverterService converterService;
-
   /**
    * 分页查询条目下的商品
    * 
@@ -95,28 +90,29 @@ public class GoodController {
   /**
    * 添加商品
    * 
-   * @param goodRequest
+   * @param coverImage
+   * @param detailImages
+   * @param good
    * @param request
    * @return
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/good")
   public Good createGood(@RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-      @RequestParam(value = "detailImages", required = false) List<MultipartFile> detailImages, GoodRequest goodRequest,
+      @RequestParam(value = "detailImages", required = false) List<MultipartFile> detailImages, Good good,
       HttpServletRequest request) {
-    if (null == goodRequest) {
+    if (null == good) {
       throw new GoodsException("400", "good request body is null");
     }
-    if (StringUtils.isEmpty(goodRequest.getName())) {
+    if (StringUtils.isEmpty(good.getName())) {
       throw new GoodsException("400", "good name is empty");
     }
-    if (StringUtils.isEmpty(goodRequest.getBarcode())) {
+    if (StringUtils.isEmpty(good.getBarcode())) {
       throw new GoodsException("400", "good barcode is empty");
     }
-    if (goodRequest.getPrice() == 0) {
+    if (good.getPrice() == 0) {
       throw new GoodsException("400", "good price  is 0");
     }
-    Good good = converterService.from(goodRequest);
     goodService.createGood(good);
 
     String coverImgUrl = imageService.saveGoodLogo(good.getId(), coverImage);
@@ -140,7 +136,7 @@ public class GoodController {
 
     GoodDetail goodDetail = new GoodDetail();
     goodDetail.setId(good.getId());
-    goodDetail.setLifetime(goodRequest.getLifetime());
+    goodDetail.setLifetime(good.getLifetime());
     goodDetail.setDetailImgList(detailImgList);
 
     gooddetailService.createGoodDetail(goodDetail);
@@ -207,14 +203,13 @@ public class GoodController {
   @PreAuthorize(value = "hasAuthority('admin')")
   @PutMapping(value = "/good/{goodid}")
   public Good updateGood(@RequestHeader(AuthConstants.HEADER_STRING) String token,
-      @PathVariable(value = "goodid") String goodid, @RequestBody GoodRequest request) throws IOException {
+      @PathVariable(value = "goodid") String goodid, @RequestBody Good request) throws IOException {
     if (null == request) {
       throw new GoodsException("400", "update good request body is null");
     }
-    Good good = goodService.updateGood(goodid, converterService.from(request));
+    Good good = goodService.updateGood(goodid, request);
     if (good != null) {
-      request.setId(good.getId());
-      shoporderControllerClient.updatePreOrder(token, request, true);
+      shoporderControllerClient.updatePreOrder(token, good.getId(), request, true);
     }
     return good;
   }

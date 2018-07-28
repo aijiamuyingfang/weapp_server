@@ -1,9 +1,9 @@
 package cn.aijiamuyingfang.server.domain;
 
-import cn.aijiamuyingfang.server.commons.domain.BaseEnum;
-import cn.aijiamuyingfang.server.commons.domain.SendType;
-import cn.aijiamuyingfang.server.commons.domain.ShopOrderStatus;
-import cn.aijiamuyingfang.server.commons.domain.UserMessageType;
+import cn.aijiamuyingfang.commons.domain.BaseEnum;
+import cn.aijiamuyingfang.commons.domain.shoporder.SendType;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderStatus;
+import cn.aijiamuyingfang.commons.domain.user.UserMessageType;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.springframework.core.convert.converter.Converter;
@@ -12,7 +12,7 @@ import org.springframework.core.convert.converter.ConverterFactory;
 /**
  * [描述]:
  * <p>
- * 枚举类型转换器的工厂类<br/>
+ * 枚举类型转换器的工厂类<br>
  * 枚举类型转换器:用于将枚举类型转换成字符串类型返回给服务调用方,或者将服务调用方传递关联的字符串转化为枚举类型
  * </p>
  * 

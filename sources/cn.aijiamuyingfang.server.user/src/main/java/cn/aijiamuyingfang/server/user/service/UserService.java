@@ -1,12 +1,12 @@
 package cn.aijiamuyingfang.server.user.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.UserException;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.address.db.RecieveAddressRepository;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.UserException;
-import cn.aijiamuyingfang.server.domain.user.User;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

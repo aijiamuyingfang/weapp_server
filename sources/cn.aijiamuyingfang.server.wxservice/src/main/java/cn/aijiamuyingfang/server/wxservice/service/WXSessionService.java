@@ -1,7 +1,7 @@
 package cn.aijiamuyingfang.server.wxservice.service;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.wxservice.WXSession;
-import cn.aijiamuyingfang.server.domain.exception.WXServiceException;
+import cn.aijiamuyingfang.commons.domain.exception.WXServiceException;
+import cn.aijiamuyingfang.commons.domain.wxservice.WXSession;
 import cn.binarywang.wx.miniapp.api.WxMaUserService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import me.chanjar.weixin.common.bean.result.WxError;

@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.rest.auth;
 
-import cn.aijiamuyingfang.server.commons.constants.AuthConstants;
+import cn.aijiamuyingfang.commons.constants.AuthConstants;
 import cn.aijiamuyingfang.server.rest.auth.filter.JwtAuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

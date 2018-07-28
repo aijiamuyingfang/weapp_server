@@ -1,14 +1,14 @@
 package cn.aijiamuyingfang.server.rest.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseBean;
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.CouponException;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.exception.ShopCartException;
-import cn.aijiamuyingfang.server.domain.exception.ShopOrderException;
-import cn.aijiamuyingfang.server.domain.exception.UserException;
-import cn.aijiamuyingfang.server.domain.exception.WXServiceException;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.CouponException;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopCartException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopOrderException;
+import cn.aijiamuyingfang.commons.domain.exception.UserException;
+import cn.aijiamuyingfang.commons.domain.exception.WXServiceException;
+import cn.aijiamuyingfang.commons.domain.response.ResponseBean;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;

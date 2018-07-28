@@ -1,6 +1,6 @@
 package cn.aijiamuyingfang.server.domain.shoporder.db;
 
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

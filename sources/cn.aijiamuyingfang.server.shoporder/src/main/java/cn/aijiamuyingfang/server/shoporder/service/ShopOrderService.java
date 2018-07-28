@@ -1,39 +1,40 @@
 package cn.aijiamuyingfang.server.shoporder.service;
 
-import cn.aijiamuyingfang.server.client.api.impl.CouponControllerClient;
-import cn.aijiamuyingfang.server.client.api.impl.TemplateMsgControllerClient;
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.domain.SendType;
-import cn.aijiamuyingfang.server.commons.domain.ShopOrderStatus;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.client.rest.api.impl.CouponControllerClient;
+import cn.aijiamuyingfang.client.rest.api.impl.TemplateMsgControllerClient;
+import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.coupon.GoodVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.UserVoucher;
+import cn.aijiamuyingfang.commons.domain.coupon.VoucherItem;
+import cn.aijiamuyingfang.commons.domain.exception.AuthException;
+import cn.aijiamuyingfang.commons.domain.exception.ShopOrderException;
+import cn.aijiamuyingfang.commons.domain.goods.Good;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreOrderGood;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.PreviewOrderItem;
+import cn.aijiamuyingfang.commons.domain.shoporder.SendType;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrder;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderItem;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderStatus;
+import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderVoucher;
+import cn.aijiamuyingfang.commons.domain.shoporder.request.CreateUserShoprderRequest;
+import cn.aijiamuyingfang.commons.domain.shoporder.request.UpdateShopOrderStatusRequest;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.ConfirmUserShopOrderFinishedResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetFinishedPreOrderListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetPreOrderGoodListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetShopOrderListResponse;
+import cn.aijiamuyingfang.commons.domain.shoporder.response.GetUserShopOrderListResponse;
+import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.address.db.RecieveAddressRepository;
-import cn.aijiamuyingfang.server.domain.coupon.GoodVoucher;
-import cn.aijiamuyingfang.server.domain.coupon.UserVoucher;
-import cn.aijiamuyingfang.server.domain.coupon.VoucherItem;
 import cn.aijiamuyingfang.server.domain.coupon.db.GoodVoucherRepository;
 import cn.aijiamuyingfang.server.domain.coupon.db.UserVoucherRepository;
-import cn.aijiamuyingfang.server.domain.exception.AuthException;
-import cn.aijiamuyingfang.server.domain.exception.ShopOrderException;
-import cn.aijiamuyingfang.server.domain.goods.Good;
 import cn.aijiamuyingfang.server.domain.goods.db.GoodRepository;
 import cn.aijiamuyingfang.server.domain.shopcart.db.ShopCartItemRepository;
-import cn.aijiamuyingfang.server.domain.shoporder.ConfirmUserShopOrderFinishedResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.CreateUserShoprderRequest;
-import cn.aijiamuyingfang.server.domain.shoporder.GetFinishedPreOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetPreOrderGoodListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetShopOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.GetUserShopOrderListResponse;
-import cn.aijiamuyingfang.server.domain.shoporder.PreOrderGood;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrder;
-import cn.aijiamuyingfang.server.domain.shoporder.PreviewOrderItem;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrder;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrderItem;
-import cn.aijiamuyingfang.server.domain.shoporder.ShopOrderVoucher;
-import cn.aijiamuyingfang.server.domain.shoporder.UpdateShopOrderStatusRequest;
 import cn.aijiamuyingfang.server.domain.shoporder.db.PreviewOrderRepository;
 import cn.aijiamuyingfang.server.domain.shoporder.db.ShopOrderRepository;
-import cn.aijiamuyingfang.server.domain.user.User;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +47,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * [描述]:
@@ -183,6 +183,11 @@ public class ShopOrderService {
     if (null == shoporder) {
       throw new ShopOrderException(ResponseCode.SHOPORDER_NOT_EXIST, shoporderid);
     }
+    User user = userRepository.findOne(shoporder.getUserid());
+    if (null == user) {
+      throw new ShopOrderException(ResponseCode.USER_NOT_EXIST, shoporder.getUserid());
+    }
+
     ShopOrderStatus updateStatus = requestBean.getStatus();
     if (updateStatus != null) {
       shoporder.setStatus(updateStatus);
@@ -206,13 +211,13 @@ public class ShopOrderService {
 
       switch (shoporder.getSendtype()) {
         case OWNSEND:
-          templatemsgControllerClient.sendOwnSendMsg(token, shoporder, true);
+          templatemsgControllerClient.sendOwnSendMsg(token, user.getOpenid(), shoporder, true);
           break;
         case THIRDSEND:
-          templatemsgControllerClient.sendThirdSendMsg(token, shoporder, true);
+          templatemsgControllerClient.sendThirdSendMsg(token, user.getOpenid(), shoporder, true);
           break;
         case PICKUP:
-          templatemsgControllerClient.sendPickupMsg(token, shoporder, true);
+          templatemsgControllerClient.sendPickupMsg(token, user.getOpenid(), shoporder, true);
           break;
         default:
           break;
@@ -615,7 +620,10 @@ public class ShopOrderService {
     }
     List<ShopOrder> shoporderList = shopOrderRepository.findPreOrderContainsGoodid(updatedGood.getId());
     for (ShopOrder shoporder : shoporderList) {
-
+      User user = userRepository.findOne(shoporder.getUserid());
+      if (null == user) {
+        continue;
+      }
       if (checkUpdateable(shoporder)) {
         // 更新订单
         for (ShopOrderItem item : shoporder.getOrderItemList()) {
@@ -626,7 +634,8 @@ public class ShopOrderService {
         }
         shoporder.setStatus(ShopOrderStatus.UNSTART);
         shopOrderRepository.saveAndFlush(shoporder);
-        templatemsgControllerClient.sendPreOrderMsg(token, shoporder, updatedGood, true);
+
+        templatemsgControllerClient.sendPreOrderMsg(token, user.getOpenid(), shoporder, updatedGood, true);
 
       }
     }

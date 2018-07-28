@@ -1,13 +1,12 @@
 package cn.aijiamuyingfang.server.goods.controller;
 
-import cn.aijiamuyingfang.server.commons.controller.bean.ResponseCode;
-import cn.aijiamuyingfang.server.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.exception.GoodsException;
-import cn.aijiamuyingfang.server.domain.goods.GetDefaultStoreIdResponse;
-import cn.aijiamuyingfang.server.domain.goods.GetInUseStoreListResponse;
-import cn.aijiamuyingfang.server.domain.goods.Store;
-import cn.aijiamuyingfang.server.domain.goods.StoreRequest;
-import cn.aijiamuyingfang.server.domain.util.ConverterService;
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetDefaultStoreIdResponse;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetInUseStoreListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.goods.service.ImageService;
 import cn.aijiamuyingfang.server.goods.service.StoreClassifyService;
 import cn.aijiamuyingfang.server.goods.service.StoreService;
@@ -17,7 +16,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,16 +48,13 @@ public class StoreController {
   @Autowired
   private ImageService imageService;
 
-  @Autowired
-  private ConverterService converterService;
-
   /**
    * 分页获取在使用中的Store
    * 
    * @param currentpage
-   *          当前页 默认值:1 (currentpage必须>=1,否则重置为1)
+   *          当前页 默认值:1 (currentpage必须&ge;1,否则重置为1)
    * @param pagesize
-   *          每页大小 默认值:10(pagesize必须>0,否则重置为1)
+   *          每页大小 默认值:10(pagesize必&gt;0,否则重置为1)
    * @return
    */
   @PreAuthorize(value = "isAuthenticated()")
@@ -79,27 +74,26 @@ public class StoreController {
   @PreAuthorize(value = "hasAuthority('admin')")
   @PostMapping(value = "/store")
   public Store createStore(@RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-      @RequestParam(value = "detailImages", required = false) List<MultipartFile> detailImages,
-      StoreRequest storeRequest, HttpServletRequest request) {
+      @RequestParam(value = "detailImages", required = false) List<MultipartFile> detailImages, Store storeRequest,
+      HttpServletRequest request) {
     if (null == storeRequest) {
       throw new GoodsException("400", "store request body is null");
     }
     if (StringUtils.isEmpty(storeRequest.getName())) {
       throw new GoodsException("400", "store name is empty");
     }
-    Store store = converterService.from(storeRequest);
-    storeService.createStore(store);
-    String coverImgUrl = imageService.saveStoreLogo(store.getId(), coverImage);
+    storeService.createStore(storeRequest);
+    String coverImgUrl = imageService.saveStoreLogo(storeRequest.getId(), coverImage);
     if (StringUtils.hasContent(coverImgUrl)) {
       coverImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(), coverImgUrl);
-      store.setCoverImg(coverImgUrl);
+      storeRequest.setCoverImg(coverImgUrl);
     }
 
-    imageService.clearStoreDetailImgs(store.getId());
+    imageService.clearStoreDetailImgs(storeRequest.getId());
     List<String> detailImgList = new ArrayList<>();
     if (!CollectionUtils.isEmpty(detailImages)) {
       for (MultipartFile img : detailImages) {
-        String detailImgUrl = imageService.saveStoreDetailImg(store.getId(), img);
+        String detailImgUrl = imageService.saveStoreDetailImg(storeRequest.getId(), img);
         if (StringUtils.hasContent(detailImgUrl)) {
           detailImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(),
               detailImgUrl);
@@ -107,10 +101,10 @@ public class StoreController {
         }
       }
     }
-    store.setDetailImgList(detailImgList);
+    storeRequest.setDetailImgList(detailImgList);
 
-    storeService.updateStore(store.getId(), store);
-    return store;
+    storeService.updateStore(storeRequest.getId(), storeRequest);
+    return storeRequest;
 
   }
 
@@ -138,12 +132,11 @@ public class StoreController {
    */
   @PreAuthorize(value = "hasAuthority('admin')")
   @PutMapping(value = "/store/{storeid}")
-  public Store updateStore(@PathVariable("storeid") String storeid, @RequestBody StoreRequest storeRequest) {
+  public Store updateStore(@PathVariable("storeid") String storeid, @RequestBody Store storeRequest) {
     if (null == storeRequest) {
       throw new GoodsException("400", "update store request body is null");
     }
-    Store store = converterService.from(storeRequest);
-    return storeService.updateStore(storeid, store);
+    return storeService.updateStore(storeid, storeRequest);
   }
 
   /**
