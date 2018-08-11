@@ -2,12 +2,10 @@ package cn.aijiamuyingfang.server.goods.controller;
 
 import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
 import cn.aijiamuyingfang.commons.domain.goods.Classify;
-import cn.aijiamuyingfang.commons.domain.goods.response.GetTopClassifyListResponse;
 import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
 import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.goods.service.ClassifyService;
 import cn.aijiamuyingfang.server.goods.service.ImageService;
-import cn.aijiamuyingfang.server.goods.service.StoreClassifyService;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,38 +35,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class ClassifyController {
 
   @Autowired
-  private StoreClassifyService storeclassifyService;
-
-  @Autowired
   private ClassifyService classifyService;
 
   @Autowired
   private ImageService imageService;
 
   /**
-   * 获取门店下所有的顶层条目
+   * 获取所有顶层条目
    * 
-   * @param storeid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
-  @GetMapping(value = "/store/{storeid}/classify")
-  public List<Classify> getStoreTopClassifyList(@PathVariable(value = "storeid") String storeid) {
-    return storeclassifyService.getStoreClassifyList(storeid);
-  }
-
-  /**
-   * 分页获取所有顶层条目
-   * 
-   * @param currentpage
-   * @param pagesize
-   * @return
-   */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/classify")
-  public GetTopClassifyListResponse getTopClassifyList(@RequestParam("currentpage") int currentpage,
-      @RequestParam("pagesize") int pagesize) {
-    return classifyService.getTopClassifyList(currentpage, pagesize);
+  public List<Classify> getTopClassifyList() {
+    return classifyService.getTopClassifyList();
   }
 
   /**
@@ -77,7 +57,7 @@ public class ClassifyController {
    * @param classifyid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/classify/{classifyid}")
   public Classify getClassify(@PathVariable(value = "classifyid") String classifyid) {
     Classify classify = classifyService.getClassify(classifyid);
@@ -95,7 +75,6 @@ public class ClassifyController {
   @PreAuthorize(value = "hasAuthority('admin')")
   @DeleteMapping(value = "/classify/{classifyid}")
   public void deleteClassify(@PathVariable(value = "classifyid") String classifyid) {
-    storeclassifyService.removeStoreClassify(classifyid);
     classifyService.deleteClassify(classifyid);
   }
 
@@ -114,7 +93,7 @@ public class ClassifyController {
     if (StringUtils.isEmpty(request.getName())) {
       throw new GoodsException("400", "classify name is empty");
     }
-    return classifyService.createTopClassify(request);
+    return classifyService.createORUpdateTopClassify(request);
   }
 
   /**
@@ -123,7 +102,7 @@ public class ClassifyController {
    * @param classifyid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/classify/{classifyid}/subclassify")
   public List<Classify> getSubClassifyList(@PathVariable(value = "classifyid") String classifyid) {
     return classifyService.getSubClassifyList(classifyid);
@@ -148,11 +127,12 @@ public class ClassifyController {
     if (StringUtils.isEmpty(classifyRequest.getName())) {
       throw new GoodsException("400", "classify name is empty");
     }
-    Classify subClassify = classifyService.createSubClassify(classifyid, classifyRequest);
+    Classify subClassify = classifyService.createORUpdateSubClassify(classifyid, classifyRequest);
 
+    imageService.clearLogo(subClassify.getCoverImg());
     String coverImgUrl = imageService.saveClassifyLogo(subClassify.getId(), coverImage);
     if (StringUtils.hasContent(coverImgUrl)) {
-      coverImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(), coverImgUrl);
+      coverImgUrl = String.format(ImageService.IMAGE_URL_PATTERN, request.getServerName(), coverImgUrl);
       subClassify.setCoverImg(coverImgUrl);
     }
     return classifyService.updateClassify(subClassify.getId(), subClassify);

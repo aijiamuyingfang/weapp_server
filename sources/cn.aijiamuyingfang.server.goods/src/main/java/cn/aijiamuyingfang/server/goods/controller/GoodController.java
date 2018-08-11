@@ -75,7 +75,7 @@ public class GoodController {
    * @param pagesize
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/classify/{classifyid}/good")
   public GetClassifyGoodListResponse getClassifyGoodList(@PathVariable(value = "classifyid") String classifyid,
       @RequestParam(value = "packFilter", required = false) List<String> packFilter,
@@ -113,11 +113,12 @@ public class GoodController {
     if (good.getPrice() == 0) {
       throw new GoodsException("400", "good price  is 0");
     }
-    goodService.createGood(good);
+    good = goodService.createORUpdateGood(good);
 
+    imageService.clearLogo(good.getCoverImg());
     String coverImgUrl = imageService.saveGoodLogo(good.getId(), coverImage);
     if (StringUtils.hasContent(coverImgUrl)) {
-      coverImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(), coverImgUrl);
+      coverImgUrl = String.format(ImageService.IMAGE_URL_PATTERN, request.getServerName(), coverImgUrl);
       good.setCoverImg(coverImgUrl);
     }
 
@@ -127,8 +128,7 @@ public class GoodController {
       for (MultipartFile img : detailImages) {
         String detailImgUrl = imageService.saveGoodDetailImg(good.getId(), img);
         if (StringUtils.hasContent(detailImgUrl)) {
-          detailImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(),
-              detailImgUrl);
+          detailImgUrl = String.format(ImageService.IMAGE_URL_PATTERN, request.getServerName(), detailImgUrl);
           detailImgList.add(detailImgUrl);
         }
       }
@@ -138,9 +138,8 @@ public class GoodController {
     goodDetail.setId(good.getId());
     goodDetail.setLifetime(good.getLifetime());
     goodDetail.setDetailImgList(detailImgList);
-
-    gooddetailService.createGoodDetail(goodDetail);
-    return good;
+    gooddetailService.createORUpdateGoodDetail(goodDetail);
+    return goodService.createORUpdateGood(good);
   }
 
   /**
@@ -149,7 +148,7 @@ public class GoodController {
    * @param goodid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/good/{goodid}")
   public Good getGood(@PathVariable(value = "goodid") String goodid) {
     Good good = goodService.getGood(goodid);
@@ -181,7 +180,7 @@ public class GoodController {
    * @param goodid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/good/{goodid}/detail")
   public GoodDetail getGoodDetail(@PathVariable(value = "goodid") String goodid) {
     GoodDetail goodDetail = gooddetailService.getGoodDetail(goodid);

@@ -1,19 +1,11 @@
 package cn.aijiamuyingfang.server.goods.controller;
 
-import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
-import cn.aijiamuyingfang.commons.domain.goods.Store;
-import cn.aijiamuyingfang.commons.domain.goods.response.GetDefaultStoreIdResponse;
-import cn.aijiamuyingfang.commons.domain.goods.response.GetInUseStoreListResponse;
-import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
-import cn.aijiamuyingfang.commons.utils.CollectionUtils;
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.goods.service.ImageService;
-import cn.aijiamuyingfang.server.goods.service.StoreClassifyService;
-import cn.aijiamuyingfang.server.goods.service.StoreService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +17,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
+import cn.aijiamuyingfang.commons.domain.goods.Store;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetDefaultStoreIdResponse;
+import cn.aijiamuyingfang.commons.domain.goods.response.GetInUseStoreListResponse;
+import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
+import cn.aijiamuyingfang.commons.utils.CollectionUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
+import cn.aijiamuyingfang.server.goods.service.ImageService;
+import cn.aijiamuyingfang.server.goods.service.StoreService;
 
 /**
  * [描述]:
@@ -43,9 +45,6 @@ public class StoreController {
   private StoreService storeService;
 
   @Autowired
-  private StoreClassifyService storeclassifyService;
-
-  @Autowired
   private ImageService imageService;
 
   /**
@@ -57,7 +56,7 @@ public class StoreController {
    *          每页大小 默认值:10(pagesize必&gt;0,否则重置为1)
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/store")
   public GetInUseStoreListResponse getInUseStoreList(@RequestParam(value = "currentpage") int currentpage,
       @RequestParam(value = "pagesize") int pagesize) {
@@ -82,29 +81,28 @@ public class StoreController {
     if (StringUtils.isEmpty(storeRequest.getName())) {
       throw new GoodsException("400", "store name is empty");
     }
-    storeService.createStore(storeRequest);
-    String coverImgUrl = imageService.saveStoreLogo(storeRequest.getId(), coverImage);
+    Store store = storeService.createORUpdateStore(storeRequest);
+    imageService.clearLogo(store.getCoverImg());
+    String coverImgUrl = imageService.saveStoreLogo(store.getId(), coverImage);
     if (StringUtils.hasContent(coverImgUrl)) {
-      coverImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(), coverImgUrl);
-      storeRequest.setCoverImg(coverImgUrl);
+      coverImgUrl = String.format(ImageService.IMAGE_URL_PATTERN, request.getServerName(), coverImgUrl);
+      store.setCoverImg(coverImgUrl);
     }
 
-    imageService.clearStoreDetailImgs(storeRequest.getId());
+    imageService.clearStoreDetailImgs(store.getId());
     List<String> detailImgList = new ArrayList<>();
     if (!CollectionUtils.isEmpty(detailImages)) {
       for (MultipartFile img : detailImages) {
-        String detailImgUrl = imageService.saveStoreDetailImg(storeRequest.getId(), img);
+        String detailImgUrl = imageService.saveStoreDetailImg(store.getId(), img);
         if (StringUtils.hasContent(detailImgUrl)) {
-          detailImgUrl = String.format("http://%s:%s/%s", request.getServerName(), request.getServerPort(),
-              detailImgUrl);
+          detailImgUrl = String.format(ImageService.IMAGE_URL_PATTERN, request.getServerName(), detailImgUrl);
           detailImgList.add(detailImgUrl);
         }
       }
     }
-    storeRequest.setDetailImgList(detailImgList);
+    store.setDetailImgList(detailImgList);
 
-    storeService.updateStore(storeRequest.getId(), storeRequest);
-    return storeRequest;
+    return storeService.updateStore(store.getId(), store);
 
   }
 
@@ -113,7 +111,7 @@ public class StoreController {
    * 
    * @param storeid
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/store/{storeid}")
   public Store getStore(@PathVariable("storeid") String storeid) {
     Store store = storeService.getStore(storeid);
@@ -156,7 +154,7 @@ public class StoreController {
    * 
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/store/defaultid")
   public GetDefaultStoreIdResponse getDefaultStoreId() {
     GetInUseStoreListResponse response = storeService.getInUseStoreList(1, 1);
@@ -173,7 +171,7 @@ public class StoreController {
    * 
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/store/city")
   public Set<String> getStoresCity() {
     return storeService.getStoresCity();
@@ -185,9 +183,10 @@ public class StoreController {
    * @param storeid
    * @param classifyId
    */
-  @PreAuthorize(value = "hasAuthority('admin')")
-  @PutMapping(value = "/store/{storeid}/classify/{classifyid}")
-  public void addStoreClassify(@PathVariable("storeid") String storeid, @PathVariable("classifyid") String classifyId) {
-    storeclassifyService.addClassify(storeid, classifyId);
-  }
+  // @PreAuthorize(value = "hasAuthority('admin')")
+  // @PutMapping(value = "/store/{storeid}/classify/{classifyid}")
+  // public void addStoreClassify(@PathVariable("storeid") String storeid,
+  // @PathVariable("classifyid") String classifyId) {
+  // storeclassifyService.addClassify(storeid, classifyId);
+  // }
 }

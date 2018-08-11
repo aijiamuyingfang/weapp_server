@@ -27,6 +27,7 @@ import cn.aijiamuyingfang.commons.domain.shoporder.ShopOrderStatus;
 import cn.aijiamuyingfang.commons.domain.shoporder.request.CreateUserShoprderRequest;
 import cn.aijiamuyingfang.commons.domain.shoporder.request.UpdateShopOrderStatusRequest;
 import cn.aijiamuyingfang.commons.domain.shoporder.response.ConfirmUserShopOrderFinishedResponse;
+import cn.aijiamuyingfang.commons.domain.user.Gender;
 import cn.aijiamuyingfang.commons.domain.user.User;
 import cn.aijiamuyingfang.commons.domain.user.response.TokenResponse;
 import cn.aijiamuyingfang.commons.utils.StringUtils;
@@ -69,7 +70,7 @@ public abstract class AbstractTestAction {
   /**
    * Admin用户的Id
    */
-  public static final String ADMIN_USER_ID = "5c6a132a-829f-11e8-96fc-00cfe0430e2a";
+  public static final String ADMIN_USER_ID = "5c6a132a829f11e896fc00cfe0430e2a";
 
   /**
    * Admin用户的JWT
@@ -166,6 +167,7 @@ public abstract class AbstractTestAction {
     createSenderRequest.setJscode("senderonejscode");
     createSenderRequest.setPhone("11111111111");
     createSenderRequest.setNickname("SenderOne User NickName");
+    createSenderRequest.setGender(Gender.MALE);
     User user = authControllerClient.registerUser(ADMIN_USER_TOKEN, createSenderRequest);
     if (user != null) {
       senderoneId = user.getId();
@@ -174,7 +176,7 @@ public abstract class AbstractTestAction {
   }
 
   public String getSenderOneToken() throws IOException {
-    TokenResponse tokenResponse = authControllerClient.getToken("senderonejscode", null, null);
+    TokenResponse tokenResponse = authControllerClient.getToken("senderonejscode", null, null, Gender.MALE);
     if (tokenResponse != null) {
       senderoneToken = AuthConstants.TOKEN_PREFIX + tokenResponse.getToken();
       return senderoneToken;
@@ -199,7 +201,7 @@ public abstract class AbstractTestAction {
   }
 
   public String getSenderTwoToken() throws IOException {
-    TokenResponse tokenResponse = authControllerClient.getToken("sendertwojscode", null, null);
+    TokenResponse tokenResponse = authControllerClient.getToken("sendertwojscode", null, null, Gender.MALE);
     if (tokenResponse != null) {
       sendertwoToken = AuthConstants.TOKEN_PREFIX + tokenResponse.getToken();
       return sendertwoToken;

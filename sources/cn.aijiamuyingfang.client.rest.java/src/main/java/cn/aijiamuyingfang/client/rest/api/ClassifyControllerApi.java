@@ -13,7 +13,6 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 /**
  * [描述]:
@@ -36,21 +35,19 @@ public interface ClassifyControllerApi {
    * @param storeid
    * @return
    */
-  @GET(value = "/store/{storeid}/classify")
-  public Call<ResponseBean> getStoreTopClassifyList(@Header(AuthConstants.HEADER_STRING) String token,
-      @Path(value = "storeid") String storeid);
+  // @GET(value = "/store/{storeid}/classify")
+  // public Call<ResponseBean> getStoreTopClassifyList(@Header(AuthConstants.HEADER_STRING) String
+  // token,
+  // @Path(value = "storeid") String storeid);
 
   /**
-   * 分页获取所有顶层条目
+   * 获取所有顶层条目
    * 
    * @param token
-   * @param currentpage
-   * @param pagesize
    * @return
    */
   @GET(value = "/classify")
-  public Call<ResponseBean> getTopClassifyList(@Header(AuthConstants.HEADER_STRING) String token,
-      @Query("currentpage") int currentpage, @Query("pagesize") int pagesize);
+  public Call<ResponseBean> getTopClassifyList(@Header(AuthConstants.HEADER_STRING) String token);
 
   /**
    * 获取某个条目

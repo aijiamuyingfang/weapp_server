@@ -1,14 +1,17 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.commons.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import cn.aijiamuyingfang.commons.utils.FileUtils;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
 
 /**
  * [描述]:
@@ -23,6 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class ImageService {
+
+  public static final String IMAGE_URL_PATTERN = "http://%s:8000/%s";
+
   private static final Logger LOGGER = LogManager.getLogger(ImageService.class);
 
   @Value("${weapp.images.dir}")
@@ -38,12 +44,31 @@ public class ImageService {
    * @return
    */
   public String saveStoreLogo(String storeId, MultipartFile img) {
-    String logouri = String.format("stores/%s/store_logo.jpg", storeId);
+    String logouri = String.format("stores/%s/%s.jpg", storeId, UUID.randomUUID().toString());
     File logoFile = new File(imagesPath, logouri);
     if (saveFile(logoFile, img)) {
       return logouri;
     }
     return null;
+  }
+
+  /**
+   * 删除store logo
+   * 
+   * @param logourl
+   */
+  public void clearLogo(String logourl) {
+    if (StringUtils.isEmpty(logourl)) {
+      return;
+    }
+    logourl = logourl.replace("http://", "");
+    String logoFilePath = logourl.substring(logourl.indexOf('/'));
+    File logoFile = new File(imagesPath, logoFilePath);
+    try {
+      FileUtils.forceDelete(logoFile);
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
   }
 
   /**
@@ -62,6 +87,21 @@ public class ImageService {
       return detailuri;
     }
     return null;
+  }
+
+  /**
+   * 清理该门店之前的详细图片
+   * 
+   * @param storeId
+   *          门店Id
+   */
+  public void clearStoreDetailImgs(String storeId) {
+    File detailDir = new File(imagesPath, "stores/" + storeId + "/store_details");
+    try {
+      FileUtils.cleanDirectory(detailDir);
+    } catch (IOException e) {
+      LOGGER.error(e);
+    }
   }
 
   /**
@@ -84,21 +124,6 @@ public class ImageService {
   }
 
   /**
-   * 清理该门店之前的详细图片
-   * 
-   * @param storeId
-   *          门店Id
-   */
-  public void clearStoreDetailImgs(String storeId) {
-    File detailDir = new File(imagesPath, "stores/" + storeId + "/store_details");
-    try {
-      FileUtils.cleanDirectory(detailDir);
-    } catch (IOException e) {
-      LOGGER.error(e);
-    }
-  }
-
-  /**
    * 保存条目对应的图标
    * 
    * @param classifyId
@@ -106,7 +131,7 @@ public class ImageService {
    * @return
    */
   public String saveClassifyLogo(String classifyId, MultipartFile file) {
-    String logouri = String.format("classifies/%s/classify_logo.jpg", classifyId);
+    String logouri = String.format("classifies/%s/%s.jpg", classifyId, UUID.randomUUID().toString());
     File logoFile = new File(imagesPath, logouri);
     if (saveFile(logoFile, file)) {
       return logouri;
@@ -121,7 +146,7 @@ public class ImageService {
    * @param file
    */
   public String saveGoodLogo(String goodid, MultipartFile file) {
-    String logouri = String.format("goods/%s/good_logo.jpg", goodid);
+    String logouri = String.format("goods/%s/%s.jpg", goodid, UUID.randomUUID().toString());
     File logoFile = new File(imagesPath, logouri);
     if (saveFile(logoFile, file)) {
       return logouri;

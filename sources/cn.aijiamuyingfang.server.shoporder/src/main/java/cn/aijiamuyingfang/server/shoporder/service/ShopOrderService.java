@@ -29,6 +29,7 @@ import cn.aijiamuyingfang.commons.domain.user.User;
 import cn.aijiamuyingfang.commons.utils.CollectionUtils;
 import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.address.db.RecieveAddressRepository;
+import cn.aijiamuyingfang.server.domain.address.db.StoreAddressRepository;
 import cn.aijiamuyingfang.server.domain.coupon.db.GoodVoucherRepository;
 import cn.aijiamuyingfang.server.domain.coupon.db.UserVoucherRepository;
 import cn.aijiamuyingfang.server.domain.goods.db.GoodRepository;
@@ -87,6 +88,9 @@ public class ShopOrderService {
 
   @Autowired
   private RecieveAddressRepository recieveaddressRepository;
+
+  @Autowired
+  private StoreAddressRepository storeaddressRepository;
 
   @Autowired
   private TemplateMsgControllerClient templatemsgControllerClient;
@@ -183,12 +187,16 @@ public class ShopOrderService {
     if (null == shoporder) {
       throw new ShopOrderException(ResponseCode.SHOPORDER_NOT_EXIST, shoporderid);
     }
+    ShopOrderStatus updateStatus = requestBean.getStatus();
+    if (shoporder.getStatus() == updateStatus) {
+      throw new ShopOrderException("500", "shoporder has get target status");
+    }
+
     User user = userRepository.findOne(shoporder.getUserid());
     if (null == user) {
       throw new ShopOrderException(ResponseCode.USER_NOT_EXIST, shoporder.getUserid());
     }
 
-    ShopOrderStatus updateStatus = requestBean.getStatus();
     if (updateStatus != null) {
       shoporder.setStatus(updateStatus);
     }
@@ -210,17 +218,17 @@ public class ShopOrderService {
       goodRepository.flush();
 
       switch (shoporder.getSendtype()) {
-        case OWNSEND:
-          templatemsgControllerClient.sendOwnSendMsg(token, user.getOpenid(), shoporder, true);
-          break;
-        case THIRDSEND:
-          templatemsgControllerClient.sendThirdSendMsg(token, user.getOpenid(), shoporder, true);
-          break;
-        case PICKUP:
-          templatemsgControllerClient.sendPickupMsg(token, user.getOpenid(), shoporder, true);
-          break;
-        default:
-          break;
+      case OWNSEND:
+        templatemsgControllerClient.sendOwnSendMsg(token, user.getOpenid(), shoporder, true);
+        break;
+      case THIRDSEND:
+        templatemsgControllerClient.sendThirdSendMsg(token, user.getOpenid(), shoporder, true);
+        break;
+      case PICKUP:
+        templatemsgControllerClient.sendPickupMsg(token, user.getOpenid(), shoporder, true);
+        break;
+      default:
+        break;
       }
       shopOrderRepository.saveAndFlush(shoporder);
     }
@@ -303,6 +311,7 @@ public class ShopOrderService {
 
     ConfirmUserShopOrderFinishedResponse response = new ConfirmUserShopOrderFinishedResponse();
     shoporder.setStatus(ShopOrderStatus.FINISHED);
+    shoporder.setFinishTime(new Date());
     shopOrderRepository.saveAndFlush(shoporder);
 
     User user = userRepository.findOne(userid);
@@ -381,7 +390,7 @@ public class ShopOrderService {
     GetFinishedPreOrderListResponse response = new GetFinishedPreOrderListResponse();
     response.setCurrentpage(shoporderPage.getNumber() + 1);
     response.setDataList(shoporderPage.getContent());
-    response.setTotalpage(shoporderPage.getSize());
+    response.setTotalpage(shoporderPage.getTotalPages());
     return response;
   }
 
@@ -425,8 +434,14 @@ public class ShopOrderService {
     shoporder.setSendtype(requestBean.getSendtype());
     shoporder.setStatus(requestBean.getStatus() != null ? requestBean.getStatus() : ShopOrderStatus.UNSTART);
     shoporder.setPickupTime(requestBean.getPickupTime());
-    shoporder.setRecieveAddress(recieveaddressRepository.findOne(requestBean.getAddressid()));
-    shoporder.setBusinessMessage(requestBean.getBuyerMessage());
+
+    if (SendType.PICKUP.equals(requestBean.getSendtype())) {
+      shoporder.setPickupAddress(storeaddressRepository.findOne(requestBean.getAddressid()));
+    } else {
+      shoporder.setRecieveAddress(recieveaddressRepository.findOne(requestBean.getAddressid()));
+    }
+
+    shoporder.setBusinessMessage(requestBean.getBusinessMessage());
     shoporder.setFormid(requestBean.getFormid());
 
     double totalGoodsPrice = 0;
@@ -602,7 +617,7 @@ public class ShopOrderService {
     GetPreOrderGoodListResponse response = new GetPreOrderGoodListResponse();
     response.setCurrentpage(pageResponse.getNumber() + 1);
     response.setDataList(preorderGoodList);
-    response.setTotalpage(pageResponse.getSize());
+    response.setTotalpage(pageResponse.getTotalPages());
     return response;
 
   }

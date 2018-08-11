@@ -2,6 +2,8 @@ package cn.aijiamuyingfang.commons.domain.coupon;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import cn.aijiamuyingfang.commons.utils.StringUtils;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -50,6 +52,29 @@ public class VoucherItem implements Parcelable {
    */
   private int score;
 
+  /**
+   * 使用提供的VoucherItem更新本商品兑换券信息
+   * 
+   * @param updateVoucherItem
+   */
+  public void update(VoucherItem updateVoucherItem) {
+    if (null == updateVoucherItem) {
+      return;
+    }
+    if (StringUtils.hasContent(updateVoucherItem.name)) {
+      this.name = updateVoucherItem.name;
+    }
+    if (StringUtils.hasContent(updateVoucherItem.description)) {
+      this.description = updateVoucherItem.description;
+    }
+    if (StringUtils.hasContent(updateVoucherItem.goodid)) {
+      this.goodid = updateVoucherItem.goodid;
+    }
+    if (updateVoucherItem.score > 0) {
+      this.score = updateVoucherItem.score;
+    }
+  }
+
   public String getName() {
     return name;
   }
@@ -96,6 +121,31 @@ public class VoucherItem implements Parcelable {
 
   public void setDeprecated(boolean deprecated) {
     this.deprecated = deprecated;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VoucherItem other = (VoucherItem) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
   }
 
   @Override

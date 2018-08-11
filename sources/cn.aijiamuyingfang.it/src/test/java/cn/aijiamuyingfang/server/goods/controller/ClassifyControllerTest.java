@@ -6,8 +6,6 @@ import cn.aijiamuyingfang.client.rest.api.impl.ClassifyControllerClient;
 import cn.aijiamuyingfang.commons.annotation.TestDescription;
 import cn.aijiamuyingfang.commons.domain.exception.GoodsException;
 import cn.aijiamuyingfang.commons.domain.goods.Classify;
-import cn.aijiamuyingfang.commons.domain.goods.Store;
-import cn.aijiamuyingfang.commons.domain.goods.response.GetTopClassifyListResponse;
 import cn.aijiamuyingfang.server.goods.GoodsApplication;
 import java.io.IOException;
 import java.util.List;
@@ -53,37 +51,16 @@ public class ClassifyControllerTest {
   }
 
   @Test
-  @TestDescription(description = "当门店中没有条目数据时查询")
-  public void testGetStoreTopClassifyList_001() throws IOException {
-    Store store = testActions.createStoreOne();
-    Assert.assertNotNull(store);
-    Assert.assertEquals(0, store.getClassifyList().size());
-  }
-
-  @Test
-  @TestDescription(description = "当有一条顶级的条目数据但不属于门店时查询")
-  public void testGetStoreTopClassifyList_002() throws IOException {
-    testActions.createStoreOne();
-    testActions.createClassifyOne();
-    List<Classify> classifyList = classifyControllerClient.getStoreTopClassifyList(ADMIN_USER_TOKEN,
-        testActions.storeoneId);
-    Assert.assertEquals(0, classifyList.size());
-  }
-
-  @Test
   @TestDescription(description = "当门店中有一条顶级的条目数据时查询")
   public void testGetStoreTopClassifyList_003() throws IOException {
     testActions.createStoreOne();
     testActions.createClassifyOne();
-    testActions.applyClassifyOneForStoreOne();
-    List<Classify> classifyList = classifyControllerClient.getStoreTopClassifyList(ADMIN_USER_TOKEN,
-        testActions.storeoneId);
+    List<Classify> classifyList = classifyControllerClient.getTopClassifyList(ADMIN_USER_TOKEN);
     Assert.assertEquals(1, classifyList.size());
-    GetTopClassifyListResponse getTopClassifyListResponse = classifyControllerClient
-        .getTopClassifyList(ADMIN_USER_TOKEN, 1, 10);
-    Assert.assertEquals(1, getTopClassifyListResponse.getDataList().size());
+    classifyList = classifyControllerClient.getTopClassifyList(ADMIN_USER_TOKEN);
+    Assert.assertEquals(1, classifyList.size());
     testActions.deleteClassifyOne();
-    classifyList = classifyControllerClient.getStoreTopClassifyList(ADMIN_USER_TOKEN, testActions.storeoneId);
+    classifyList = classifyControllerClient.getTopClassifyList(ADMIN_USER_TOKEN);
     Assert.assertEquals(0, classifyList.size());
   }
 

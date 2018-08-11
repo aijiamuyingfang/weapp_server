@@ -32,11 +32,6 @@ public class CreateUserShoprderRequest {
   private String addressid;
 
   /**
-   * 自提单的门店ID
-   */
-  private String storeid;
-
-  /**
    * 取货时间
    */
   private Date pickupTime;
@@ -44,7 +39,7 @@ public class CreateUserShoprderRequest {
   /**
    * 买家留言
    */
-  private String buyerMessage;
+  private String businessMessage;
 
   /**
    * 提交订单的表单ID
@@ -80,14 +75,6 @@ public class CreateUserShoprderRequest {
     this.addressid = addressid;
   }
 
-  public String getStoreid() {
-    return storeid;
-  }
-
-  public void setStoreid(String storeid) {
-    this.storeid = storeid;
-  }
-
   public Date getPickupTime() {
     return pickupTime;
   }
@@ -104,12 +91,12 @@ public class CreateUserShoprderRequest {
     this.formid = formid;
   }
 
-  public String getBuyerMessage() {
-    return buyerMessage;
+  public String getBusinessMessage() {
+    return businessMessage;
   }
 
-  public void setBuyerMessage(String buyerMessage) {
-    this.buyerMessage = buyerMessage;
+  public void setBusinessMessage(String businessMessage) {
+    this.businessMessage = businessMessage;
   }
 
   public int getJfNum() {

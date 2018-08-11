@@ -3,6 +3,7 @@ package cn.aijiamuyingfang.commons.domain.shoporder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import cn.aijiamuyingfang.commons.domain.address.RecieveAddress;
+import cn.aijiamuyingfang.commons.domain.address.StoreAddress;
 import cn.aijiamuyingfang.commons.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.text.DateFormat;
@@ -86,7 +87,13 @@ public class ShopOrder implements Parcelable {
   private Date pickupTime;
 
   /**
-   * 取货/收货地址;根据sendtype决定Address的意义
+   * 取货地址
+   */
+  @ManyToOne
+  private StoreAddress pickupAddress;
+
+  /**
+   * 收货地址
    */
   @ManyToOne
   private RecieveAddress recieveAddress;
@@ -230,6 +237,7 @@ public class ShopOrder implements Parcelable {
 
   public void setStatus(ShopOrderStatus status) {
     this.status = status;
+    this.lastModify = new Date();
   }
 
   public boolean isFromPreOrder() {
@@ -270,6 +278,14 @@ public class ShopOrder implements Parcelable {
 
   public void setPickupTime(Date pickupTime) {
     this.pickupTime = pickupTime;
+  }
+
+  public StoreAddress getPickupAddress() {
+    return pickupAddress;
+  }
+
+  public void setPickupAddress(StoreAddress pickupAddress) {
+    this.pickupAddress = pickupAddress;
   }
 
   public RecieveAddress getRecieveAddress() {
@@ -389,15 +405,16 @@ public class ShopOrder implements Parcelable {
     dest.writeParcelable(status, flags);
     dest.writeByte((byte) (fromPreOrder ? 1 : 0));
     dest.writeParcelable(sendtype, flags);
-    dest.writeLong(createTime.getTime());
-    dest.writeLong(finishTime.getTime());
-    dest.writeLong(pickupTime.getTime());
+    dest.writeLong(createTime != null ? createTime.getTime() : -1);
+    dest.writeLong(finishTime != null ? finishTime.getTime() : -1);
+    dest.writeLong(pickupTime != null ? pickupTime.getTime() : -1);
     dest.writeParcelable(recieveAddress, flags);
+    dest.writeParcelable(pickupAddress, flags);
     dest.writeParcelableArray(orderItemList.toArray(new ShopOrderItem[orderItemList.size()]), flags);
     dest.writeString(thirdsendCompany);
     dest.writeString(thirdsendNo);
     dest.writeStringList(operator);
-    dest.writeLong(lastModify.getTime());
+    dest.writeLong(lastModify != null ? lastModify.getTime() : -1);
     dest.writeString(businessMessage);
     dest.writeString(formid);
     dest.writeDouble(totalGoodsPrice);
@@ -420,10 +437,20 @@ public class ShopOrder implements Parcelable {
     status = in.readParcelable(ShopOrderStatus.class.getClassLoader());
     fromPreOrder = in.readByte() != 0;
     sendtype = in.readParcelable(SendType.class.getClassLoader());
-    createTime = new Date(in.readLong());
-    finishTime = new Date(in.readLong());
-    pickupTime = new Date(in.readLong());
+    long createTimeValue = in.readLong();
+    if (createTimeValue != -1) {
+      createTime = new Date(createTimeValue);
+    }
+    long finishTimeValue = in.readLong();
+    if (finishTimeValue != -1) {
+      finishTime = new Date(finishTimeValue);
+    }
+    long pickupTimeValue = in.readLong();
+    if (pickupTimeValue != -1) {
+      pickupTime = new Date(pickupTimeValue);
+    }
     recieveAddress = in.readParcelable(RecieveAddress.class.getClassLoader());
+    pickupAddress = in.readParcelable(StoreAddress.class.getClassLoader());
     orderItemList = new ArrayList<>();
     for (Parcelable p : in.readParcelableArray(ShopOrderItem.class.getClassLoader())) {
       orderItemList.add((ShopOrderItem) p);
@@ -431,7 +458,10 @@ public class ShopOrder implements Parcelable {
     thirdsendCompany = in.readString();
     thirdsendNo = in.readString();
     in.readStringList(operator);
-    lastModify = new Date(in.readLong());
+    long lastModifyValue = in.readLong();
+    if (lastModifyValue != -1) {
+      lastModify = new Date(lastModifyValue);
+    }
     businessMessage = in.readString();
     formid = in.readString();
     totalGoodsPrice = in.readDouble();

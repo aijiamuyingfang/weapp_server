@@ -84,7 +84,7 @@ public class CouponController {
    * @param pagesize
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/coupon/goodvoucher")
   public GetGoodVoucherListResponse getGoodVoucherList(@RequestParam(value = "currentpage") int currentpage,
       @RequestParam("pagesize") int pagesize) {
@@ -97,7 +97,7 @@ public class CouponController {
    * @param voucherid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/coupon/goodvoucher/{voucherid}")
   public GoodVoucher getGoodVoucher(@PathVariable("voucherid") String voucherid) {
     return couponService.getGoodVoucher(voucherid);
@@ -124,7 +124,7 @@ public class CouponController {
     if (CollectionUtils.isEmpty(request.getVoucheritemIdList())) {
       throw new CouponException("400", "good voucher items is empyt");
     }
-    return couponService.createGoodVoucher(request);
+    return couponService.createORUpdateGoodVoucher(request);
   }
 
   /**
@@ -145,7 +145,7 @@ public class CouponController {
    * @param pagesize
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/coupon/voucheritem")
   public GetVoucherItemListResponse getVoucherItemList(@RequestParam("currentpage") int currentpage,
       @RequestParam("pagesize") int pagesize) {
@@ -158,7 +158,7 @@ public class CouponController {
    * @param itemid
    * @return
    */
-  @PreAuthorize(value = "isAuthenticated()")
+  @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/coupon/voucheritem/{itemid}")
   public VoucherItem getVoucherItem(@PathVariable("itemid") String itemid) {
     return couponService.getVoucherItem(itemid);
@@ -186,7 +186,7 @@ public class CouponController {
       throw new CouponException("400", "voucher item score is 0");
     }
 
-    return couponService.createVoucherItem(request);
+    return couponService.createORUpdateVoucherItem(request);
   }
 
   /**

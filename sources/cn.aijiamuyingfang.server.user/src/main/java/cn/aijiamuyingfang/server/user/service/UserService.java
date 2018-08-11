@@ -5,6 +5,7 @@ import cn.aijiamuyingfang.commons.domain.exception.AuthException;
 import cn.aijiamuyingfang.commons.domain.exception.UserException;
 import cn.aijiamuyingfang.commons.domain.response.ResponseCode;
 import cn.aijiamuyingfang.commons.domain.user.User;
+import cn.aijiamuyingfang.commons.domain.user.response.GetUserPhoneResponse;
 import cn.aijiamuyingfang.commons.utils.StringUtils;
 import cn.aijiamuyingfang.server.domain.address.db.RecieveAddressRepository;
 import cn.aijiamuyingfang.server.domain.user.db.UserRepository;
@@ -71,6 +72,19 @@ public class UserService {
   }
 
   /**
+   * 获取用户手机号
+   * 
+   * @param userid
+   * @return
+   */
+  public GetUserPhoneResponse getUserPhone(String userid) {
+    User user = getUser(userid);
+    GetUserPhoneResponse response = new GetUserPhoneResponse();
+    response.setPhone(user.getPhone());
+    return response;
+  }
+
+  /**
    * 更新用户信息
    * 
    * @param userid
@@ -120,6 +134,9 @@ public class UserService {
       return null;
     }
     recieveAddress.setUserid(userid);
+    if (recieveAddress.isDef()) {
+      recieveaddressRepository.setAllRecieveAddressNotDef();
+    }
     recieveaddressRepository.saveAndFlush(recieveAddress);
     return recieveAddress;
   }
@@ -163,6 +180,9 @@ public class UserService {
     }
 
     recieveAddress.update(updateRecieveAddress);
+    if (recieveAddress.isDef()) {
+      recieveaddressRepository.setAllRecieveAddressNotDef();
+    }
     recieveaddressRepository.saveAndFlush(recieveAddress);
     return recieveAddress;
   }
