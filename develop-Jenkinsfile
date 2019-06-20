@@ -1,36 +1,158 @@
-pipeline {
-    agent any
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '25'))
-        disableConcurrentBuilds()
-        timestamps()
-        skipDefaultCheckout()
-    }
-
-    stages {
-        
+def label = "weapp-${UUID.randomUUID().toString()}"
+podTemplate(
+    name:'weapp-develop',
+    namespace:'jenkins-namespace',
+    serviceAccount:'jenkins',
+    label:label,
+    containers:[
+        containerTemplate(name: 'tool', image:'registry.cn-hangzhou.aliyuncs.com/podtemplate/base-image:latest',command:'cat',ttyEnabled: true)
+    ],
+    volumes:[
+        hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
+        nfsVolume(mountPath: '/root/.m2', readOnly: false, serverAddress: '192.168.0.102', serverPath: '/var/nfs/jenkins_slave/.m2'),
+        nfsVolume(mountPath: '/root/.sonar', readOnly: false, serverAddress: '192.168.0.102', serverPath: '/var/nfs/jenkins_slave/.sonar'),
+        nfsVolume(mountPath: '/home/jenkins/.kube', readOnly: false, serverAddress: '192.168.0.102', serverPath: '/var/nfs/jenkins_slave/.kube')
+    ]
+){
+    node(label){
         stage('get code') {
-            steps {
-                git 'https://github.com/fuyoushengwu/weapp_server.git'
-            }
+            git branch: 'spring-cloud', url: 'https://github.com/fuyoushengwu/weapp_server.git'
         }
 
         stage('code analysis') {
-            steps {
-                dir("sources") {
-                    sh 'mvn clean install sonar:sonar -Dsonar.organization=fuyoushengwu-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=1a1a48e2f6cd3453ae98de53fc46ef27b53732f7'
+            container('tool'){
+                sh """
+                    mvn clean compile sonar:sonar -Dsonar.projectKey=cn.aijiamuyingfang:cn.aijiamuyingfang -Dsonar.organization=fuyoushengwu-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=033ad430ca4c06abfa5fe9f078d3a8de2ebe62dd -f sources/pom.xml
+                """
+            }
+        }
+
+        stage('package') {
+            container('tool') {
+                withCredentials([usernamePassword(credentialsId: '961154c4-c9ca-4c27-a97f-97e2172f3ef8', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh """
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD registry.cn-hangzhou.aliyuncs.com
+                    """
+                }
+
+                try {
+                    sh """
+                        kubectl delete -f build/weapp_test/
+                    """
+                } catch (exc) {
+                    println exc
+                }
+
+                def imageArr = sh (
+                    script: "docker images --filter=reference='registry.cn-hangzhou.aliyuncs.com/fuyoushengwu/*:*' --format={{.Repository}}:{{.Tag}}",
+                    returnStdout: true
+                ).trim().split()
+                for(int i=0;i<imageArr.size();i++){
+                    def image = imageArr[i].trim()
+                    if("".equals(image)) {
+                       continue
+                    }
+                    if(image.endsWith("<none>")) {
+                        image = image.replace(":<none>","")
+                        image = sh(
+                            script: "docker images --filter=reference='$image' --format={{.ID}}",
+                            returnStdout: true
+                        ).trim()
+                    }
+                    try {
+                        sh """
+                            docker rmi $image
+                        """
+                    } catch (exc) {
+                        println exc
+                    }
+                }
+
+                sh """
+                    mvn clean install -Dmaven.test.skip=true -f sources/pom.xml
+                """
+
+                def newImageArr = sh (
+                    script: "docker images --filter=reference='registry.cn-hangzhou.aliyuncs.com/fuyoushengwu/*:*' --format={{.Repository}}:{{.Tag}}",
+                    returnStdout: true
+                ).trim().split()
+                for(int i=0;i<newImageArr.size();i++){
+                    def image = newImageArr[i].trim()
+                    if("".equals(image)||image.endsWith("<none>")) {
+                        continue
+                    }
+                    try {
+                        sh """
+                            docker push $image
+                        """
+                    } catch (exc) {
+                        println exc
+                    }
+                }
+            }
+        }
+
+        stage('test'){
+            container('tool') {
+                try {
+                    sh """
+                        kubectl delete -f build/weapp_test/
+                    """
+                } catch (exc) {
+                    println exc
+                }
+                
+                sh """
+                    kubectl apply -f build/weapp_test/
+                """
+                
+                sleep 180
+                
+                withCredentials([usernamePassword(credentialsId: 'c14e8739-7dc3-4e04-9c52-c218eeec15b8', usernameVariable: 'DATABASE_USERNAME', passwordVariable: 'DATABASE_PASSWORD')]) {
+                    try {
+                        sh """
+                            export WEAPP_DATASOURCE_USERNAME=$DATABASE_USERNAME
+                            export WEAPP_DATASOURCE_PASSWORD=$DATABASE_PASSWORD
+                            mvn clean test -f sources/pom.xml
+                        """
+                    }finally {
+                        
+                        try {
+                            sh """
+                                kubectl delete -f build/weapp_test/
+                            """
+                        }catch(exc){
+                            println exc
+                        }
+
+                        def imageArr = sh (
+                            script: "docker images --filter=reference='registry.cn-hangzhou.aliyuncs.com/fuyoushengwu/*:*' --format={{.Repository}}:{{.Tag}}",
+                            returnStdout: true
+                        ).trim().split()
+
+                        for(int i=0;i<imageArr.size();i++){
+                            def image = imageArr[i].trim()
+                            if("".equals(image)) {
+                                continue
+                            }
+                            if(image.endsWith("<none>")) {
+                                image = image.replace(":<none>","")
+                                image = sh(
+                                    script: "docker images --filter=reference='$image' --format={{.ID}}",
+                                    returnStdout: true
+                                ).trim()
+                            }
+                            try {
+                                sh """
+                                    docker rmi $image
+                                """
+                            } catch (exc) {
+                                println exc
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
-    post {
-
-        success {
-            dir("sources/distribute") {
-                archiveArtifacts 'weapp/**'
-            }
-        }
-    }
-
 }
