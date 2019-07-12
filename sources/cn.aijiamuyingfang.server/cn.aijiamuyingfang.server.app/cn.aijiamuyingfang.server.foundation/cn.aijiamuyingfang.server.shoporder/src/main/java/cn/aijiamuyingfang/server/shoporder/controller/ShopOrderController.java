@@ -14,17 +14,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.aijiamuyingfang.server.domain.SendType;
-import cn.aijiamuyingfang.server.domain.ShopOrderStatus;
-import cn.aijiamuyingfang.server.shoporder.domain.ShopOrder;
-import cn.aijiamuyingfang.server.shoporder.domain.request.CreateShopOrderRequest;
-import cn.aijiamuyingfang.server.shoporder.domain.request.UpdateShopOrderStatusRequest;
-import cn.aijiamuyingfang.server.shoporder.domain.response.ConfirmShopOrderFinishedResponse;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetFinishedPreOrderListResponse;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetPreOrderGoodListResponse;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetShopOrderListResponse;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetShopOrderVoucherListResponse;
 import cn.aijiamuyingfang.server.shoporder.service.ShopOrderService;
+import cn.aijiamuyingfang.vo.preorder.PagablePreOrderGoodList;
+import cn.aijiamuyingfang.vo.shoporder.ConfirmShopOrderFinishedResponse;
+import cn.aijiamuyingfang.vo.shoporder.CreateShopOrderRequest;
+import cn.aijiamuyingfang.vo.shoporder.PagableShopOrderList;
+import cn.aijiamuyingfang.vo.shoporder.SendType;
+import cn.aijiamuyingfang.vo.shoporder.ShopOrder;
+import cn.aijiamuyingfang.vo.shoporder.ShopOrderStatus;
+import cn.aijiamuyingfang.vo.shoporder.ShopOrderVoucher;
+import cn.aijiamuyingfang.vo.shoporder.UpdateShopOrderStatusRequest;
 
 /***
  * [描述]:
@@ -55,7 +54,7 @@ public class ShopOrderController {
   @PreAuthorize(
       value = "isAuthenticated() and (#username.equals(getAuthentication().getName()) or hasAnyAuthority('permission:manager:*','permission:sender:*'))")
   @GetMapping(value = "/user/{username}/shoporder")
-  public GetShopOrderListResponse getUserShopOrderList(@PathVariable(name = "username") String username,
+  public PagableShopOrderList getUserShopOrderList(@PathVariable(name = "username") String username,
       @RequestParam(value = "status", required = false) List<ShopOrderStatus> status,
       @RequestParam(value = "send_type", required = false) List<SendType> sendType,
       @RequestParam(value = "current_page") int currentPage, @RequestParam(value = "page_size") int pageSize) {
@@ -72,7 +71,7 @@ public class ShopOrderController {
   @PreAuthorize(
       value = "isAuthenticated() and (#username.equals(getAuthentication().getName()) or hasAnyAuthority('permission:manager:*','permission:sender:*'))")
   @GetMapping(value = "/user/{username}/coupon/shoporder")
-  public GetShopOrderVoucherListResponse getUserShopOrderVoucherList(@PathVariable("username") String username,
+  public List<ShopOrderVoucher> getUserShopOrderVoucherList(@PathVariable("username") String username,
       @RequestParam(name = "good_id", required = false) List<String> goodIdList) {
     return shoporderSerivce.getUserShopOrderVoucherList(username, goodIdList);
   }
@@ -88,7 +87,7 @@ public class ShopOrderController {
    */
   @PreAuthorize(value = "hasAnyAuthority('permission:manager:*','permission:sender:*')")
   @GetMapping(value = "/shoporder")
-  public GetShopOrderListResponse getShopOrderList(
+  public PagableShopOrderList getShopOrderList(
       @RequestParam(value = "status", required = false) List<ShopOrderStatus> status,
       @RequestParam(value = "send_type", required = false) List<SendType> sendType,
       @RequestParam(value = "current_page") int currentPage, @RequestParam(value = "page_size") int pageSize) {
@@ -169,7 +168,7 @@ public class ShopOrderController {
    */
   @PreAuthorize(value = "hasAnyAuthority('permission:manager:*','permission:sender:*')")
   @GetMapping(value = "/shoporder/preorder/finished")
-  public GetFinishedPreOrderListResponse getFinishedPreOrderList(@RequestParam(value = "current_page") int currentPage,
+  public PagableShopOrderList getFinishedPreOrderList(@RequestParam(value = "current_page") int currentPage,
       @RequestParam(value = "page_size") int pageSize) {
     return shoporderSerivce.getFinishedPreOrderList(currentPage, pageSize);
   }
@@ -224,7 +223,7 @@ public class ShopOrderController {
    */
   @PreAuthorize(value = "hasAnyAuthority('permission:manager:*','permission:sender:*')")
   @GetMapping(value = "/shoporder/preordergoods")
-  public GetPreOrderGoodListResponse getPreOrderGoodList(@RequestParam(value = "current_page") int currentPage,
+  public PagablePreOrderGoodList getPreOrderGoodList(@RequestParam(value = "current_page") int currentPage,
       @RequestParam(value = "page_size") int pageSize) {
     return shoporderSerivce.getPreOrderGoodList(currentPage, pageSize);
   }

@@ -10,24 +10,24 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import cn.aijiamuyingfang.client.commons.domain.ResponseBean;
-import cn.aijiamuyingfang.client.commons.domain.ResponseCode;
-import cn.aijiamuyingfang.client.commons.utils.StringUtils;
-import cn.aijiamuyingfang.client.domain.address.City;
-import cn.aijiamuyingfang.client.domain.address.Coordinate;
-import cn.aijiamuyingfang.client.domain.address.County;
-import cn.aijiamuyingfang.client.domain.address.Province;
-import cn.aijiamuyingfang.client.domain.address.Town;
-import cn.aijiamuyingfang.client.domain.exception.GoodsException;
-import cn.aijiamuyingfang.client.domain.store.Store;
-import cn.aijiamuyingfang.client.domain.store.StoreAddress;
-import cn.aijiamuyingfang.client.domain.store.WorkTime;
-import cn.aijiamuyingfang.client.domain.store.response.GetDefaultStoreIdResponse;
-import cn.aijiamuyingfang.client.domain.store.response.GetInUseStoreListResponse;
+import cn.aijiamuyingfang.client.commons.constant.ClientRestConstants;
 import cn.aijiamuyingfang.client.rest.annotation.HttpService;
 import cn.aijiamuyingfang.client.rest.api.StoreControllerApi;
-import cn.aijiamuyingfang.client.rest.utils.JsonUtils;
-import okhttp3.MediaType;
+import cn.aijiamuyingfang.client.rest.utils.ResponseUtils;
+import cn.aijiamuyingfang.vo.address.City;
+import cn.aijiamuyingfang.vo.address.Coordinate;
+import cn.aijiamuyingfang.vo.address.County;
+import cn.aijiamuyingfang.vo.address.Province;
+import cn.aijiamuyingfang.vo.address.Town;
+import cn.aijiamuyingfang.vo.exception.GoodsException;
+import cn.aijiamuyingfang.vo.response.ResponseBean;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.store.PagableStoreList;
+import cn.aijiamuyingfang.vo.store.Store;
+import cn.aijiamuyingfang.vo.store.StoreAddress;
+import cn.aijiamuyingfang.vo.store.WorkTime;
+import cn.aijiamuyingfang.vo.utils.JsonUtils;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Builder;
 import okhttp3.RequestBody;
@@ -55,7 +55,7 @@ public class StoreControllerClient {
 
     @Override
     public void onResponse(Call<ResponseBean> call, Response<ResponseBean> response) {
-      LOGGER.info("onResponse:" + response.message());
+      LOGGER.info("onResponse:{}", response.message());
     }
 
     @Override
@@ -77,7 +77,7 @@ public class StoreControllerClient {
    * @return
    * @throws IOException
    */
-  public GetInUseStoreListResponse getInUseStoreList(int currentPage, int pageSize) throws IOException {
+  public PagableStoreList getInUseStoreList(int currentPage, int pageSize) throws IOException {
     Response<ResponseBean> response = storeControllerApi.getInUseStoreList(currentPage, pageSize).execute();
     ResponseBean responseBean = response.body();
     if (null == responseBean) {
@@ -89,8 +89,8 @@ public class StoreControllerClient {
     String returnCode = responseBean.getCode();
     Object returnData = responseBean.getData();
     if ("200".equals(returnCode)) {
-      GetInUseStoreListResponse getInUseStoreListResponse = JsonUtils
-          .json2Bean(JsonUtils.map2Json((Map<?, ?>) returnData), GetInUseStoreListResponse.class);
+      PagableStoreList getInUseStoreListResponse = JsonUtils.json2Bean(JsonUtils.map2Json((Map<?, ?>) returnData),
+          PagableStoreList.class);
       if (null == getInUseStoreListResponse) {
         throw new GoodsException("500", "get inuse store list  return code is '200',but return data is null");
       }
@@ -188,7 +188,7 @@ public class StoreControllerClient {
   private void buildDetailImage(Builder requestBodyBuilder, List<File> detailImageFiles) {
     if (!CollectionUtils.isEmpty(detailImageFiles)) {
       for (File detailImageFile : detailImageFiles) {
-        RequestBody requestdetailImg = RequestBody.create(MediaType.parse("multipart/form-data"), detailImageFile);
+        RequestBody requestdetailImg = RequestBody.create(ClientRestConstants.MEDIA_TYPE_MULTIPART, detailImageFile);
         requestBodyBuilder.addFormDataPart("detailImages", detailImageFile.getName(), requestdetailImg);
       }
     }
@@ -202,7 +202,7 @@ public class StoreControllerClient {
    */
   private void buildCoverImage(MultipartBody.Builder requestBodyBuilder, File coverImageFile) {
     if (coverImageFile != null) {
-      RequestBody requestCoverImg = RequestBody.create(MediaType.parse("multipart/form-data"), coverImageFile);
+      RequestBody requestCoverImg = RequestBody.create(ClientRestConstants.MEDIA_TYPE_MULTIPART, coverImageFile);
       requestBodyBuilder.addFormDataPart("coverImage", coverImageFile.getName(), requestCoverImg);
     }
   }
@@ -402,20 +402,7 @@ public class StoreControllerClient {
       storeControllerApi.deprecateStore(storeId, accessToken).enqueue(Empty_Callback);
       return;
     }
-    Response<ResponseBean> response = storeControllerApi.deprecateStore(storeId, accessToken).execute();
-    ResponseBean responseBean = response.body();
-    if (null == responseBean) {
-      if (response.errorBody() != null) {
-        LOGGER.error(new String(response.errorBody().bytes()));
-      }
-      throw new GoodsException(ResponseCode.RESPONSE_BODY_IS_NULL);
-    }
-    String returnCode = responseBean.getCode();
-    if ("200".equals(returnCode)) {
-      return;
-    }
-    LOGGER.error(responseBean.getMsg());
-    throw new GoodsException(returnCode, responseBean.getMsg());
+    ResponseUtils.handleGoodsVOIDResponse(storeControllerApi.deprecateStore(storeId, accessToken).execute(), LOGGER);
   }
 
   /**
@@ -424,7 +411,7 @@ public class StoreControllerClient {
    * @return
    * @throws IOException
    */
-  public GetDefaultStoreIdResponse getDefaultStoreId() throws IOException {
+  public String getDefaultStoreId() throws IOException {
     Response<ResponseBean> response = storeControllerApi.getDefaultStoreId().execute();
     ResponseBean responseBean = response.body();
     if (null == responseBean) {
@@ -434,9 +421,8 @@ public class StoreControllerClient {
       throw new GoodsException(ResponseCode.RESPONSE_BODY_IS_NULL);
     }
     String returnCode = responseBean.getCode();
-    Object returnData = responseBean.getData();
     if ("200".equals(returnCode)) {
-      return JsonUtils.json2Bean(JsonUtils.map2Json((Map<?, ?>) returnData), GetDefaultStoreIdResponse.class);
+      return (String) responseBean.getData();
     }
     LOGGER.error(responseBean.getMsg());
     throw new GoodsException(returnCode, responseBean.getMsg());
@@ -485,19 +471,7 @@ public class StoreControllerClient {
       storeControllerApi.addStoreClassify(storeId, classifyId, accessToken).enqueue(Empty_Callback);
       return;
     }
-    Response<ResponseBean> response = storeControllerApi.addStoreClassify(storeId, classifyId, accessToken).execute();
-    ResponseBean responseBean = response.body();
-    if (null == responseBean) {
-      if (response.errorBody() != null) {
-        LOGGER.error(new String(response.errorBody().bytes()));
-      }
-      throw new GoodsException(ResponseCode.RESPONSE_BODY_IS_NULL);
-    }
-    String returnCode = responseBean.getCode();
-    if ("200".equals(returnCode)) {
-      return;
-    }
-    LOGGER.error(responseBean.getMsg());
-    throw new GoodsException(returnCode, responseBean.getMsg());
+    ResponseUtils.handleGoodsVOIDResponse(
+        storeControllerApi.addStoreClassify(storeId, classifyId, accessToken).execute(), LOGGER);
   }
 }

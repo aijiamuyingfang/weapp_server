@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.user.domain.UserMessage;
-import cn.aijiamuyingfang.server.user.domain.response.GetMessagesListResponse;
 import cn.aijiamuyingfang.server.user.service.UserMessageService;
+import cn.aijiamuyingfang.vo.message.PagableUserMessageList;
+import cn.aijiamuyingfang.vo.message.UserMessage;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 
 /**
  * [描述]:
@@ -53,7 +53,7 @@ public class UserMessageController {
    */
   @PreAuthorize(value = "isAuthenticated() and #username.equals(getAuthentication().getName())")
   @GetMapping(value = "/user/{username}/message")
-  public GetMessagesListResponse getUserMessageList(@PathVariable("username") String username,
+  public PagableUserMessageList getUserMessageList(@PathVariable("username") String username,
       @RequestParam("current_page") int currentPage, @RequestParam("page_size") int pageSize) {
     return userMessageService.getUserMessageList(username, currentPage, pageSize);
   }

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import cn.aijiamuyingfang.server.goods.domain.Store;
+import cn.aijiamuyingfang.server.goods.dto.StoreDTO;
 
 /**
  * [描述]:
@@ -24,11 +24,10 @@ import cn.aijiamuyingfang.server.goods.domain.Store;
  */
 
 @Repository
-public interface StoreRepository extends JpaRepository<Store, String> {
-
+public interface StoreRepository extends JpaRepository<StoreDTO, String> {
   @Override
-  @Query(value = "select s from Store s where s.id=:id and s.deprecated=false")
-  Store findOne(@Param("id") String id);
+  @Query(value = "select * from store where id=:id and deprecated=false", nativeQuery = true)
+  StoreDTO findOne(@Param("id") String id);
 
   /**
    * 分页查找所有在使用中的门店
@@ -37,16 +36,15 @@ public interface StoreRepository extends JpaRepository<Store, String> {
    *          分页信息
    * @return
    */
-  @Query(value = "select  * from store where deprecated=false  order by ?#{#pageable}",
-      countQuery = "select count(*) from store where deprecated=false  order by ?#{#pageable}", nativeQuery = true)
-  Page<Store> findInUseStores(Pageable pageable);
+  @Query(value = "select * from store where deprecated=false order by ?#{#pageable}",
+      countQuery = "select count(*) from store where deprecated=false order by ?#{#pageable}", nativeQuery = true)
+  Page<StoreDTO> findInUseStores(Pageable pageable);
 
   /**
    * 查找所有在使用中的门店(非分页)
    * 
    * @return
    */
-  @Query(value = "select  * from store where deprecated=false", nativeQuery = true)
-  List<Store> findInUseStores();
-
+  @Query(value = "select * from store where deprecated=false", nativeQuery = true)
+  List<StoreDTO> findInUseStores();
 }

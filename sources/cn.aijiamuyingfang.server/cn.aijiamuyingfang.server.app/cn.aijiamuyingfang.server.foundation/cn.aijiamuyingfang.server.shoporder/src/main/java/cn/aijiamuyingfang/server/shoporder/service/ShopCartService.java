@@ -7,15 +7,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import cn.aijiamuyingfang.server.domain.response.ResponseCode;
-import cn.aijiamuyingfang.server.exception.ShopCartException;
 import cn.aijiamuyingfang.server.feign.GoodClient;
 import cn.aijiamuyingfang.server.feign.UserClient;
-import cn.aijiamuyingfang.server.feign.domain.good.Good;
-import cn.aijiamuyingfang.server.feign.domain.user.User;
 import cn.aijiamuyingfang.server.shoporder.db.ShopCartRepository;
-import cn.aijiamuyingfang.server.shoporder.domain.ShopCart;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetShopCartListResponse;
+import cn.aijiamuyingfang.server.shoporder.dto.ShopCartDTO;
+import cn.aijiamuyingfang.server.shoporder.utils.ConvertService;
+import cn.aijiamuyingfang.vo.exception.ShopCartException;
+import cn.aijiamuyingfang.vo.goods.Good;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.shopcart.PagableShopCartList;
+import cn.aijiamuyingfang.vo.shopcart.ShopCart;
+import cn.aijiamuyingfang.vo.user.User;
 
 /**
  * [描述]:
@@ -38,6 +40,9 @@ public class ShopCartService {
 
   @Autowired
   private UserClient userClient;
+
+  @Autowired
+  private ConvertService convertService;
 
   /**
    * 往购物车添加商品
@@ -62,16 +67,15 @@ public class ShopCartService {
     if (null == good) {
       throw new ShopCartException(ResponseCode.GOOD_NOT_EXIST, goodId);
     }
-    ShopCart shopCart = shopCartRepository.findByUsernameAndGoodId(username, goodId);
+    ShopCart shopCart = convertService.convertShopCartDTO(shopCartRepository.findByUsernameAndGoodId(username, goodId));
     if (null == shopCart) {
       shopCart = new ShopCart();
       shopCart.setUsername(username);
-      shopCart.setGoodId(good.getId());
+      shopCart.setGood(good);
       shopCart.setCount(0);
     }
     shopCart.addCount(goodNum);
-    shopCartRepository.saveAndFlush(shopCart);
-    return shopCart;
+    return convertService.convertShopCartDTO(shopCartRepository.saveAndFlush(convertService.convertShopCart(shopCart)));
   }
 
   /**
@@ -83,14 +87,14 @@ public class ShopCartService {
    * @param pageSize
    * @return
    */
-  public GetShopCartListResponse getShopCartList(String username, int currentPage, int pageSize) {
+  public PagableShopCartList getShopCartList(String username, int currentPage, int pageSize) {
     // PageRequest的Page参数是基于0的,但是currentPage是基于1的,所有将currentPage作为参数传递给PgeRequest时需要'-1'
     PageRequest pageRequest = new PageRequest(currentPage - 1, pageSize, Sort.Direction.DESC, "id");
-    Page<ShopCart> shopCartPage = shopCartRepository.findByUsername(username, pageRequest);
-    GetShopCartListResponse response = new GetShopCartListResponse();
-    response.setCurrentPage(shopCartPage.getNumber() + 1);
-    response.setDataList(shopCartPage.getContent());
-    response.setTotalpage(shopCartPage.getTotalPages());
+    Page<ShopCartDTO> shopCartDTOPage = shopCartRepository.findByUsername(username, pageRequest);
+    PagableShopCartList response = new PagableShopCartList();
+    response.setCurrentPage(shopCartDTOPage.getNumber() + 1);
+    response.setDataList(convertService.convertShopCartDTOList(shopCartDTOPage.getContent()));
+    response.setTotalpage(shopCartDTOPage.getTotalPages());
     return response;
   }
 
@@ -114,15 +118,15 @@ public class ShopCartService {
    * @param checked
    */
   public void checkShopCart(String username, String shopCartId, boolean checked) {
-    ShopCart shopCart = shopCartRepository.findOne(shopCartId);
-    if (null == shopCart) {
+    ShopCartDTO shopCartDTO = shopCartRepository.findOne(shopCartId);
+    if (null == shopCartDTO) {
       return;
     }
-    if (!username.equals(shopCart.getUsername())) {
+    if (!username.equals(shopCartDTO.getUsername())) {
       throw new AccessDeniedException("no permission check other user's ShopCart");
     }
-    shopCart.setChecked(checked);
-    shopCartRepository.saveAndFlush(shopCart);
+    shopCartDTO.setChecked(checked);
+    shopCartRepository.saveAndFlush(shopCartDTO);
   }
 
   /**
@@ -133,11 +137,11 @@ public class ShopCartService {
    * @param shopCartId
    */
   public void deleteShopCart(String username, String shopCartId) {
-    ShopCart shopCart = shopCartRepository.findOne(shopCartId);
-    if (null == shopCart) {
+    ShopCartDTO shopCartDTO = shopCartRepository.findOne(shopCartId);
+    if (null == shopCartDTO) {
       return;
     }
-    if (!username.equals(shopCart.getUsername())) {
+    if (!username.equals(shopCartDTO.getUsername())) {
       throw new AccessDeniedException("no permission delete other user's ShopCart");
     }
     shopCartRepository.delete(shopCartId);
@@ -153,20 +157,19 @@ public class ShopCartService {
    * @return
    */
   public ShopCart updateShopCartCount(String username, String shopCartId, int count) {
-    ShopCart shopCart = shopCartRepository.findOne(shopCartId);
-    if (null == shopCart) {
+    ShopCartDTO shopCartDTO = shopCartRepository.findOne(shopCartId);
+    if (null == shopCartDTO) {
       throw new IllegalArgumentException("ShopCart item not exist");
     }
     if (count <= 0) {
-      return shopCart;
+      return convertService.convertShopCartDTO(shopCartDTO);
     }
 
-    if (!username.equals(shopCart.getUsername())) {
+    if (!username.equals(shopCartDTO.getUsername())) {
       throw new AccessDeniedException("no permission chage other user's ShopCart");
     }
-    shopCart.setCount(count);
-    shopCartRepository.saveAndFlush(shopCart);
-    return shopCart;
+    shopCartDTO.setCount(count);
+    return convertService.convertShopCartDTO(shopCartRepository.saveAndFlush(shopCartDTO));
   }
 
   /**

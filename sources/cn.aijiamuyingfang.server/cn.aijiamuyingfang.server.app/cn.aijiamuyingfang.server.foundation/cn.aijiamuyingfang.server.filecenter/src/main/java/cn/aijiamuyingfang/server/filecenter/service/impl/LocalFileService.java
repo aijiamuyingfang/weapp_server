@@ -1,4 +1,3 @@
-
 package cn.aijiamuyingfang.server.filecenter.service.impl;
 
 import java.io.File;
@@ -25,13 +24,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import cn.aijiamuyingfang.commons.utils.JsonUtils;
-import cn.aijiamuyingfang.server.domain.FileSource;
 import cn.aijiamuyingfang.server.filecenter.db.FileInfoRepository;
-import cn.aijiamuyingfang.server.filecenter.domain.FileInfo;
-import cn.aijiamuyingfang.server.filecenter.domain.response.GetFileInfoListResponse;
+import cn.aijiamuyingfang.server.filecenter.dto.FileInfoDTO;
 import cn.aijiamuyingfang.server.filecenter.service.FileService;
+import cn.aijiamuyingfang.server.filecenter.utils.ConvertUtils;
 import cn.aijiamuyingfang.server.filecenter.utils.WebFileUtils;
+import cn.aijiamuyingfang.vo.filecenter.FileInfo;
+import cn.aijiamuyingfang.vo.filecenter.FileSource;
+import cn.aijiamuyingfang.vo.filecenter.PagableFileInfoList;
+import cn.aijiamuyingfang.vo.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -65,8 +66,8 @@ public class LocalFileService implements FileService, InitializingBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
-    AbstractEntityPersister persister = ((AbstractEntityPersister) sessionFactory.getClassMetadata(FileInfo.class));
-    for (Field field : FileInfo.class.getDeclaredFields()) {
+    AbstractEntityPersister persister = ((AbstractEntityPersister) sessionFactory.getClassMetadata(FileInfoDTO.class));
+    for (Field field : FileInfoDTO.class.getDeclaredFields()) {
       if (Modifier.isStatic(field.getModifiers())) {
         continue;
       }
@@ -86,9 +87,9 @@ public class LocalFileService implements FileService, InitializingBean {
   @Override
   public FileInfo upload(MultipartFile file, FileSource fileSource) {
     FileInfo fileInfo = WebFileUtils.extractFileInfo(file);
-    FileInfo oriFileInfo = fileInfoRepository.findOne(fileInfo.getId());
-    if (oriFileInfo != null) {
-      return oriFileInfo;
+    FileInfoDTO oriFileInfoDTO = fileInfoRepository.findOne(fileInfo.getId());
+    if (oriFileInfoDTO != null) {
+      return ConvertUtils.convertFileInfoDTO(oriFileInfoDTO);
     }
     if (!fileInfo.getName().contains(FILE_SUFFIX_SEPARATOR)) {
       throw new IllegalArgumentException("file not exist suffix name");
@@ -115,33 +116,31 @@ public class LocalFileService implements FileService, InitializingBean {
     fileInfo.setPath(path);
 
     WebFileUtils.saveFile(file, path);
-    fileInfoRepository.saveAndFlush(fileInfo);
+    return ConvertUtils.convertFileInfoDTO(fileInfoRepository.saveAndFlush(ConvertUtils.convertFileInfo(fileInfo)));
 
-    log.info("上传文件到本地：{}", fileInfo);
-    return fileInfo;
   }
 
   @Override
   public void delete(String id) {
-    FileInfo fileInfo = fileInfoRepository.findOne(id);
-    if (fileInfo != null) {
-      WebFileUtils.deleteFile(fileInfo.getPath());
-      fileInfoRepository.delete(fileInfo.getId());
-      log.info("删除本地文件：{}", fileInfo);
+    FileInfoDTO fileInfoDTO = fileInfoRepository.findOne(id);
+    if (fileInfoDTO != null) {
+      WebFileUtils.deleteFile(fileInfoDTO.getPath());
+      fileInfoRepository.delete(fileInfoDTO.getId());
+      log.info("删除本地文件：{}", fileInfoDTO);
     }
   }
 
   @Override
-  public GetFileInfoListResponse getFileInfoList(Map<String, String> params) {
+  public PagableFileInfoList getFileInfoList(Map<String, String> params) {
     int currentPage = NumberUtils.toInt(params.remove("current_page"), 1);
     int pageSize = NumberUtils.toInt(params.remove("page_size"), 10);
     PageRequest pageRequest = new PageRequest(currentPage - 1, pageSize);
-    FileInfo fileInfo = JsonUtils.fromJson(JsonUtils.toJson(params), FileInfo.class);
-    Page<FileInfo> fileInfoPage = fileInfoRepository.findAll(Example.of(fileInfo), pageRequest);
-    GetFileInfoListResponse response = new GetFileInfoListResponse();
-    response.setCurrentPage(fileInfoPage.getNumber() + 1);
-    response.setDataList(fileInfoPage.getContent());
-    response.setTotalpage(fileInfoPage.getTotalPages());
+    FileInfoDTO fileInfoDTO = JsonUtils.json2Bean(JsonUtils.bean2Json(params), FileInfoDTO.class);
+    Page<FileInfoDTO> fileInfoDTOPage = fileInfoRepository.findAll(Example.of(fileInfoDTO), pageRequest);
+    PagableFileInfoList response = new PagableFileInfoList();
+    response.setCurrentPage(fileInfoDTOPage.getNumber() + 1);
+    response.setDataList(ConvertUtils.convertFileInfoDTOList(fileInfoDTOPage.getContent()));
+    response.setTotalpage(fileInfoDTOPage.getTotalPages());
     return response;
   }
 }

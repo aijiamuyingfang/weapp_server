@@ -1,11 +1,13 @@
 package cn.aijiamuyingfang.server.goods.service;
 
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.goods.db.GoodDetailRepository;
-import cn.aijiamuyingfang.server.goods.domain.GoodDetail;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import cn.aijiamuyingfang.server.goods.db.GoodDetailRepository;
+import cn.aijiamuyingfang.server.goods.dto.GoodDetailDTO;
+import cn.aijiamuyingfang.server.goods.utils.ConvertUtils;
+import cn.aijiamuyingfang.vo.goods.GoodDetail;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 
 /**
  * [描述]:
@@ -33,13 +35,14 @@ public class GoodDetailService {
       return null;
     }
     if (StringUtils.hasContent(gooddetail.getId())) {
-      GoodDetail oriGoodDetail = goodDetailRepository.findOne(gooddetail.getId());
-      if (oriGoodDetail != null) {
-        oriGoodDetail.update(gooddetail);
-        return goodDetailRepository.saveAndFlush(gooddetail);
+      GoodDetailDTO oriGoodDetailDTO = goodDetailRepository.findOne(gooddetail.getId());
+      if (oriGoodDetailDTO != null) {
+        oriGoodDetailDTO.update(gooddetail);
+        return ConvertUtils.convertGoodDetailDTO(goodDetailRepository.saveAndFlush(oriGoodDetailDTO));
       }
     }
-    return goodDetailRepository.saveAndFlush(gooddetail);
+    return ConvertUtils
+        .convertGoodDetailDTO(goodDetailRepository.saveAndFlush(ConvertUtils.convertGoodDetail(gooddetail)));
   }
 
   /**
@@ -49,6 +52,6 @@ public class GoodDetailService {
    * @return
    */
   public GoodDetail getGoodDetail(String gooddetailId) {
-    return goodDetailRepository.findOne(gooddetailId);
+    return ConvertUtils.convertGoodDetailDTO(goodDetailRepository.findOne(gooddetailId));
   }
 }

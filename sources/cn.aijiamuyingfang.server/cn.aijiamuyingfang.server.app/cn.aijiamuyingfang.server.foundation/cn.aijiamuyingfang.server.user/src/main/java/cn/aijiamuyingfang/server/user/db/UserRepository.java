@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import cn.aijiamuyingfang.server.user.domain.User;
+import cn.aijiamuyingfang.server.user.dto.UserDTO;
 
 /**
  * [描述]:
@@ -21,8 +21,7 @@ import cn.aijiamuyingfang.server.user.domain.User;
  * @date 2018-06-25 21:14:03
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
-
+public interface UserRepository extends JpaRepository<UserDTO, String> {
   /**
    * 获取不同权限用户的Id
    * 
@@ -31,5 +30,4 @@ public interface UserRepository extends JpaRepository<User, String> {
    */
   @Query(value = "select user_username from user_authority_list where authority_list=:type", nativeQuery = true)
   List<String> findUsersByAuthority(@Param("type") int authority);
-
 }

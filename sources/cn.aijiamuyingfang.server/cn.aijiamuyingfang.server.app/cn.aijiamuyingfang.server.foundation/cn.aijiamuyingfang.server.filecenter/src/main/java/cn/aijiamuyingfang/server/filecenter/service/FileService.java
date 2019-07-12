@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import cn.aijiamuyingfang.server.domain.FileSource;
-import cn.aijiamuyingfang.server.filecenter.domain.FileInfo;
-import cn.aijiamuyingfang.server.filecenter.domain.response.GetFileInfoListResponse;
+import cn.aijiamuyingfang.vo.filecenter.FileInfo;
+import cn.aijiamuyingfang.vo.filecenter.FileSource;
+import cn.aijiamuyingfang.vo.filecenter.PagableFileInfoList;
 
 /**
  * [描述]:
@@ -44,5 +44,5 @@ public interface FileService {
    * @param params
    * @return
    */
-  GetFileInfoListResponse getFileInfoList(Map<String, String> params);
+  PagableFileInfoList getFileInfoList(Map<String, String> params);
 }

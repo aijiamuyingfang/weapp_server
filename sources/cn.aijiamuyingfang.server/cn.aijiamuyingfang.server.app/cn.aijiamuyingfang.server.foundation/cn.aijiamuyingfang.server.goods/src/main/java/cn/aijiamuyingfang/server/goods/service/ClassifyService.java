@@ -5,13 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.response.ResponseCode;
-import cn.aijiamuyingfang.server.exception.GoodsException;
 import cn.aijiamuyingfang.server.goods.db.ClassifyRepository;
 import cn.aijiamuyingfang.server.goods.db.GoodRepository;
-import cn.aijiamuyingfang.server.goods.domain.Classify;
-import cn.aijiamuyingfang.server.goods.domain.Good;
+import cn.aijiamuyingfang.server.goods.dto.ClassifyDTO;
+import cn.aijiamuyingfang.server.goods.dto.GoodDTO;
+import cn.aijiamuyingfang.server.goods.utils.ConvertService;
+import cn.aijiamuyingfang.vo.classify.Classify;
+import cn.aijiamuyingfang.vo.exception.GoodsException;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 
 /**
  * [描述]:
@@ -32,6 +34,9 @@ public class ClassifyService {
   @Autowired
   private GoodRepository goodRepository;
 
+  @Autowired
+  private ConvertService convertService;
+
   /**
    * 获取条目信息
    * 
@@ -40,7 +45,7 @@ public class ClassifyService {
    * @return
    */
   public Classify getClassify(String classifyId) {
-    return classifyRepository.findOne(classifyId);
+    return convertService.convertClassifyDTO(classifyRepository.findOne(classifyId));
   }
 
   /**
@@ -64,13 +69,13 @@ public class ClassifyService {
     }
     classify.setLevel(1);
     if (StringUtils.hasContent(classify.getId())) {
-      Classify oriClassify = classifyRepository.findOne(classify.getId());
-      if (oriClassify != null) {
-        oriClassify.update(classify);
-        return classifyRepository.saveAndFlush(oriClassify);
+      ClassifyDTO oriClassifyDTO = classifyRepository.findOne(classify.getId());
+      if (oriClassifyDTO != null) {
+        oriClassifyDTO.update(classify);
+        return convertService.convertClassifyDTO(classifyRepository.saveAndFlush(oriClassifyDTO));
       }
     }
-    return classifyRepository.saveAndFlush(classify);
+    return convertService.convertClassifyDTO(classifyRepository.saveAndFlush(convertService.convertClassify(classify)));
   }
 
   /**
@@ -87,19 +92,20 @@ public class ClassifyService {
     subclassify.setLevel(2);
 
     if (StringUtils.hasContent(subclassify.getId())) {
-      Classify oriSubClassify = classifyRepository.findOne(subclassify.getId());
-      if (oriSubClassify != null) {
-        oriSubClassify.update(subclassify);
-        return classifyRepository.saveAndFlush(oriSubClassify);
+      ClassifyDTO oriSubClassifyDTO = classifyRepository.findOne(subclassify.getId());
+      if (oriSubClassifyDTO != null) {
+        oriSubClassifyDTO.update(subclassify);
+        return convertService.convertClassifyDTO(classifyRepository.saveAndFlush(oriSubClassifyDTO));
       }
     }
-    Classify topclassify = classifyRepository.findOne(topclassifyid);
-    if (null == topclassify) {
+    ClassifyDTO topclassifyDTO = classifyRepository.findOne(topclassifyid);
+    if (null == topclassifyDTO) {
       throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, topclassifyid);
     }
-    topclassify.addSubClassify(subclassify);
-    classifyRepository.saveAndFlush(topclassify);
-    return topclassify.getSubClassifyList().get(topclassify.getSubClassifyList().size() - 1);
+    topclassifyDTO.addSubClassify(convertService.convertClassify(subclassify));
+    classifyRepository.saveAndFlush(topclassifyDTO);
+    return convertService
+        .convertClassifyDTO(topclassifyDTO.getSubClassifyList().get(topclassifyDTO.getSubClassifyList().size() - 1));
   }
 
   /**
@@ -110,11 +116,11 @@ public class ClassifyService {
    * @return
    */
   public List<Classify> getSubClassifyList(String classifyId) {
-    Classify classify = classifyRepository.findOne(classifyId);
-    if (null == classify) {
+    ClassifyDTO classifyDTO = classifyRepository.findOne(classifyId);
+    if (null == classifyDTO) {
       throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, classifyId);
     }
-    return classify.getSubClassifyList();
+    return convertService.convertClassifyDTOList(classifyDTO.getSubClassifyList());
   }
 
   /**
@@ -125,16 +131,16 @@ public class ClassifyService {
    *          商品id
    */
   public void addGood(String classifyId, String goodId) {
-    Good good = goodRepository.findOne(goodId);
-    if (null == good) {
+    GoodDTO goodDTO = goodRepository.findOne(goodId);
+    if (null == goodDTO) {
       throw new GoodsException(ResponseCode.GOOD_NOT_EXIST, goodId);
     }
-    Classify classify = classifyRepository.findOne(classifyId);
-    if (null == classify) {
+    ClassifyDTO classifyDTO = classifyRepository.findOne(classifyId);
+    if (null == classifyDTO) {
       throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, classifyId);
     }
-    classify.addGood(good);
-    classifyRepository.saveAndFlush(classify);
+    classifyDTO.addGood(goodDTO);
+    classifyRepository.saveAndFlush(classifyDTO);
   }
 
   /**
@@ -145,16 +151,16 @@ public class ClassifyService {
    * @return
    */
   public Classify updateClassify(String classifyId, Classify updateClassify) {
-    Classify classify = classifyRepository.findOne(classifyId);
-    if (null == classify) {
+    ClassifyDTO classifyDTO = classifyRepository.findOne(classifyId);
+    if (null == classifyDTO) {
       throw new GoodsException(ResponseCode.CLASSIFY_NOT_EXIST, classifyId);
     }
     if (null == updateClassify) {
-      return classify;
+      return convertService.convertClassifyDTO(classifyDTO);
     }
-    classify.update(updateClassify);
-    classifyRepository.saveAndFlush(classify);
-    return classify;
+    classifyDTO.update(updateClassify);
+    classifyRepository.saveAndFlush(classifyDTO);
+    return convertService.convertClassifyDTO(classifyDTO);
   }
 
   /**
@@ -163,7 +169,7 @@ public class ClassifyService {
    * @return
    */
   public List<Classify> getTopClassifyList() {
-    return classifyRepository.findByLevel(1);
+    return convertService.convertClassifyDTOList(classifyRepository.findByLevel(1));
   }
 
 }

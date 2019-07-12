@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import cn.aijiamuyingfang.server.domain.FileSource;
-import cn.aijiamuyingfang.server.filecenter.domain.FileInfo;
-import cn.aijiamuyingfang.server.filecenter.domain.response.GetFileInfoListResponse;
 import cn.aijiamuyingfang.server.filecenter.service.FileService;
 import cn.aijiamuyingfang.server.filecenter.service.FileServiceFactory;
+import cn.aijiamuyingfang.vo.filecenter.FileInfo;
+import cn.aijiamuyingfang.vo.filecenter.FileSource;
+import cn.aijiamuyingfang.vo.filecenter.PagableFileInfoList;
 
 @RestController
 public class FileController {
@@ -60,7 +60,7 @@ public class FileController {
    * @return
    */
   @GetMapping("/files")
-  public GetFileInfoListResponse getFileInfoList(@RequestParam Map<String, String> params) {
+  public PagableFileInfoList getFileInfoList(@RequestParam Map<String, String> params) {
     return fileServiceFactory.getDefaultFileService().getFileInfoList(params);
   }
 }

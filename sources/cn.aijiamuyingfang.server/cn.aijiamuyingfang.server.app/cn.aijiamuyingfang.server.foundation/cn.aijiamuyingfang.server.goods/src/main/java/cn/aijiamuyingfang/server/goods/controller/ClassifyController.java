@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.response.ResponseCode;
-import cn.aijiamuyingfang.server.exception.GoodsException;
-import cn.aijiamuyingfang.server.goods.domain.Classify;
-import cn.aijiamuyingfang.server.goods.domain.ImageSource;
 import cn.aijiamuyingfang.server.goods.service.ClassifyService;
 import cn.aijiamuyingfang.server.goods.service.ImageService;
+import cn.aijiamuyingfang.vo.ImageSource;
+import cn.aijiamuyingfang.vo.classify.Classify;
+import cn.aijiamuyingfang.vo.exception.GoodsException;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 
 /***
  * [描述]:

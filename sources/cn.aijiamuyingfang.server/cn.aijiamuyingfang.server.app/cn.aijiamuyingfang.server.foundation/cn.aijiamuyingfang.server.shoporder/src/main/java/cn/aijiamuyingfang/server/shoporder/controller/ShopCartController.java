@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.aijiamuyingfang.server.shoporder.domain.ShopCart;
-import cn.aijiamuyingfang.server.shoporder.domain.request.CreateShopCartRequest;
-import cn.aijiamuyingfang.server.shoporder.domain.response.GetShopCartListResponse;
 import cn.aijiamuyingfang.server.shoporder.service.ShopCartService;
+import cn.aijiamuyingfang.vo.shopcart.CreateShopCartRequest;
+import cn.aijiamuyingfang.vo.shopcart.PagableShopCartList;
+import cn.aijiamuyingfang.vo.shopcart.ShopCart;
 
 /**
  * [描述]:
@@ -57,7 +57,7 @@ public class ShopCartController {
    */
   @PreAuthorize(value = "isAuthenticated() and #username.equals(getAuthentication().getName())")
   @GetMapping(value = "/user/{username}/shop_cart")
-  public GetShopCartListResponse getShopCartList(@PathVariable("username") String username,
+  public PagableShopCartList getShopCartList(@PathVariable("username") String username,
       @RequestParam(value = "current_page") int currentPage, @RequestParam(value = "page_size") int pageSize) {
     return shopCartService.getShopCartList(username, currentPage, pageSize);
   }

@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import cn.aijiamuyingfang.commons.utils.CollectionUtils;
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.response.ResponseCode;
-import cn.aijiamuyingfang.server.exception.GoodsException;
 import cn.aijiamuyingfang.server.feign.ShopCartClient;
 import cn.aijiamuyingfang.server.feign.ShopOrderClient;
-import cn.aijiamuyingfang.server.goods.domain.Good;
-import cn.aijiamuyingfang.server.goods.domain.GoodDetail;
-import cn.aijiamuyingfang.server.goods.domain.ImageSource;
-import cn.aijiamuyingfang.server.goods.domain.request.SaleGood;
-import cn.aijiamuyingfang.server.goods.domain.response.GetClassifyGoodListResponse;
 import cn.aijiamuyingfang.server.goods.service.ClassifyGoodService;
 import cn.aijiamuyingfang.server.goods.service.GoodDetailService;
 import cn.aijiamuyingfang.server.goods.service.GoodService;
 import cn.aijiamuyingfang.server.goods.service.ImageService;
+import cn.aijiamuyingfang.vo.ImageSource;
+import cn.aijiamuyingfang.vo.exception.GoodsException;
+import cn.aijiamuyingfang.vo.goods.Good;
+import cn.aijiamuyingfang.vo.goods.GoodDetail;
+import cn.aijiamuyingfang.vo.goods.PagableGoodList;
+import cn.aijiamuyingfang.vo.goods.SaleGood;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 
 /***
  * [描述]:
@@ -84,7 +84,7 @@ public class GoodController {
    */
   @PreAuthorize(value = "permitAll()")
   @GetMapping(value = "/classify/{classify_id}/good")
-  public GetClassifyGoodListResponse getClassifyGoodList(@PathVariable(value = "classify_id") String classifyId,
+  public PagableGoodList getClassifyGoodList(@PathVariable(value = "classify_id") String classifyId,
       @RequestParam(value = "packFilter", required = false) List<String> packFilter,
       @RequestParam(value = "levelFilter", required = false) List<String> levelFilter,
       @RequestParam(value = "orderType", required = false) String orderType,

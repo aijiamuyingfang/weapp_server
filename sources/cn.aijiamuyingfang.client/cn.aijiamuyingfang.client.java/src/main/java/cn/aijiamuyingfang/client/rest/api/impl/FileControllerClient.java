@@ -9,17 +9,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import cn.aijiamuyingfang.client.commons.domain.ResponseBean;
-import cn.aijiamuyingfang.client.commons.domain.ResponseCode;
-import cn.aijiamuyingfang.client.commons.utils.StringUtils;
-import cn.aijiamuyingfang.client.domain.exception.FileCenterException;
-import cn.aijiamuyingfang.client.domain.exception.GoodsException;
-import cn.aijiamuyingfang.client.domain.filecenter.FileInfo;
-import cn.aijiamuyingfang.client.domain.filecenter.response.GetFileInfoListResponse;
+import cn.aijiamuyingfang.client.commons.constant.ClientRestConstants;
 import cn.aijiamuyingfang.client.rest.annotation.HttpService;
 import cn.aijiamuyingfang.client.rest.api.FileControllerApi;
-import cn.aijiamuyingfang.client.rest.utils.JsonUtils;
-import okhttp3.MediaType;
+import cn.aijiamuyingfang.client.rest.utils.ResponseUtils;
+import cn.aijiamuyingfang.vo.exception.FileCenterException;
+import cn.aijiamuyingfang.vo.exception.GoodsException;
+import cn.aijiamuyingfang.vo.filecenter.FileInfo;
+import cn.aijiamuyingfang.vo.filecenter.PagableFileInfoList;
+import cn.aijiamuyingfang.vo.response.ResponseBean;
+import cn.aijiamuyingfang.vo.response.ResponseCode;
+import cn.aijiamuyingfang.vo.utils.JsonUtils;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -40,13 +41,13 @@ import retrofit2.Response;
 @Service
 @SuppressWarnings("rawtypes")
 public class FileControllerClient {
-  private static final Logger LOGGER = LogManager.getLogger(StoreControllerClient.class);
+  private static final Logger LOGGER = LogManager.getLogger(FileControllerClient.class);
 
   private static final Callback<ResponseBean> Empty_Callback = new Callback<ResponseBean>() {
 
     @Override
     public void onResponse(Call<ResponseBean> call, Response<ResponseBean> response) {
-      LOGGER.info("onResponse:" + response.message());
+      LOGGER.info("onResponse:{}", response.message());
     }
 
     @Override
@@ -85,7 +86,7 @@ public class FileControllerClient {
   }
 
   private Part buildMultiPart(File file) {
-    RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+    RequestBody requestBody = RequestBody.create(ClientRestConstants.MEDIA_TYPE_MULTIPART, file);
     return Part.createFormData("file", file.getName(), requestBody);
   }
 
@@ -97,23 +98,10 @@ public class FileControllerClient {
       fileControllerApi.delete(fileId, accessToken).enqueue(Empty_Callback);
       return;
     }
-    Response<ResponseBean> response = fileControllerApi.delete(fileId, accessToken).execute();
-    ResponseBean responseBean = response.body();
-    if (null == responseBean) {
-      if (response.errorBody() != null) {
-        LOGGER.error(new String(response.errorBody().bytes()));
-      }
-      throw new FileCenterException(ResponseCode.FILECENTER_DELETE_FAILED, fileId);
-    }
-    String returnCode = responseBean.getCode();
-    if ("200".equals(returnCode)) {
-      return;
-    }
-    LOGGER.error(responseBean.getMsg());
-    throw new FileCenterException(ResponseCode.FILECENTER_DELETE_FAILED, fileId);
+    ResponseUtils.handleFileCenterVOIDResponse(fileControllerApi.delete(fileId, accessToken).execute(), fileId, LOGGER);
   }
 
-  public GetFileInfoListResponse getFileInfoList(Map<String, String> params, String accessToken) throws IOException {
+  public PagableFileInfoList getFileInfoList(Map<String, String> params, String accessToken) throws IOException {
     if (null == params) {
       params = new HashMap<>();
     }
@@ -128,8 +116,8 @@ public class FileControllerClient {
     String returnCode = responseBean.getCode();
     Object returnData = responseBean.getData();
     if ("200".equals(returnCode)) {
-      GetFileInfoListResponse getFileInfoListResponse = JsonUtils.json2Bean(JsonUtils.map2Json((Map<?, ?>) returnData),
-          GetFileInfoListResponse.class);
+      PagableFileInfoList getFileInfoListResponse = JsonUtils.json2Bean(JsonUtils.map2Json((Map<?, ?>) returnData),
+          PagableFileInfoList.class);
       if (null == getFileInfoListResponse) {
         throw new GoodsException("500", "get fileinfo list  return code is '200',but return data is null");
       }

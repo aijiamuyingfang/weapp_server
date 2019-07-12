@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import cn.aijiamuyingfang.server.coupon.domain.GoodVoucher;
+import cn.aijiamuyingfang.server.coupon.dto.GoodVoucherDTO;
 
 /**
  * [描述]:
@@ -24,16 +24,17 @@ import cn.aijiamuyingfang.server.coupon.domain.GoodVoucher;
  * @date 2018-06-25 21:15:03
  */
 @Repository
-public interface GoodVoucherRepository extends JpaRepository<GoodVoucher, String> {
+public interface GoodVoucherRepository extends JpaRepository<GoodVoucherDTO, String> {
 
   @Override
-  @Query(value = "select g from GoodVoucher g where g.id=:voucher_id and g.deprecated=false")
-  GoodVoucher findOne(@Param("voucher_id") String voucherId);
+  @Query(value = "select * from good_voucher where id=:voucher_id and deprecated=false", nativeQuery = true)
+  GoodVoucherDTO findOne(@Param("voucher_id") String voucherId);
 
   @Override
-  @Query(value = "select g from GoodVoucher g where g.deprecated=false order by ?#{#pageable}",
-      countQuery = "select count(g) from GoodVoucher g where g.deprecated=false order by ?#{#pageable}")
-  Page<GoodVoucher> findAll(Pageable pageable);
+  @Query(value = "select * from good_voucher where deprecated=false order by ?#{#pageable}",
+      countQuery = "select count(*) from good_voucher where deprecated=false order by ?#{#pageable}",
+      nativeQuery = true)
+  Page<GoodVoucherDTO> findAll(Pageable pageable);
 
   /**
    * 删除GoodVoucher对某VoucherItem的引用

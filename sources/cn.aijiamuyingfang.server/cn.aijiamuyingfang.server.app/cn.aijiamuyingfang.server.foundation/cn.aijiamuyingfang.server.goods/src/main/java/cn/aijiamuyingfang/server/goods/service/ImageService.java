@@ -12,12 +12,14 @@ import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import cn.aijiamuyingfang.commons.utils.CollectionUtils;
-import cn.aijiamuyingfang.commons.utils.StringUtils;
-import cn.aijiamuyingfang.server.domain.response.ResponseBean;
 import cn.aijiamuyingfang.server.feign.FileClient;
-import cn.aijiamuyingfang.server.feign.domain.filecenter.FileInfo;
 import cn.aijiamuyingfang.server.goods.db.ImageSourceRepository;
-import cn.aijiamuyingfang.server.goods.domain.ImageSource;
+import cn.aijiamuyingfang.server.goods.dto.ImageSourceDTO;
+import cn.aijiamuyingfang.server.goods.utils.ConvertUtils;
+import cn.aijiamuyingfang.vo.ImageSource;
+import cn.aijiamuyingfang.vo.filecenter.FileInfo;
+import cn.aijiamuyingfang.vo.response.ResponseBean;
+import cn.aijiamuyingfang.vo.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /***
@@ -60,20 +62,20 @@ public class ImageService {
       log.error("md5 upload file failed", e);
       return null;
     }
-    ImageSource imageSource = imageSourceRepository.findOne(md5);
-    if (null == imageSource) {
+    ImageSourceDTO imageSourceDTO = imageSourceRepository.findOne(md5);
+    if (null == imageSourceDTO) {
 
       ResponseBean<FileInfo> responseBean = fileClient.upload(new CustomMultipartFile("file", imagePart), null);
       FileInfo fileInfo = responseBean.getData();
       if (null == fileInfo) {
         return null;
       }
-      imageSource = new ImageSource();
-      imageSource.setId(fileInfo.getId());
-      imageSource.setUrl(fileInfo.getUrl());
-      imageSourceRepository.saveAndFlush(imageSource);
+      imageSourceDTO = new ImageSourceDTO();
+      imageSourceDTO.setId(fileInfo.getId());
+      imageSourceDTO.setUrl(fileInfo.getUrl());
+      imageSourceRepository.saveAndFlush(imageSourceDTO);
     }
-    return imageSource;
+    return ConvertUtils.convertImageSourceDTO(imageSourceDTO);
   }
 
   /**
@@ -160,7 +162,7 @@ public class ImageService {
     }
 
     @Override
-    public void transferTo(File dest) throws IOException, IllegalStateException {
+    public void transferTo(File dest) throws IOException {
       delegate.transferTo(dest);
     }
 
